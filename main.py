@@ -1,36 +1,32 @@
-import psycopg
 import getpass
-import warnings
-warnings.simplefilter("ignore", category=getpass.GetPassWarning)
+from app.models.db import connect, close_connection
+from app.models.user_model import *
+from app.models.videogame_model import *
+from app.models.collection_model import *
 from sshtunnel import SSHTunnelForwarder
 
-username = input("Enter username: ")
-password = getpass.getpass("Enter password: ")
-dbName = "p32001_20"
+def main():
+    username = input("Username: ")
+    password = getpass.getpass("Password: ")
+
+    try:
+        with SSHTunnelForwarder(('starbug.cs.rit.edu', 22),
+                                ssh_username=username,
+                                ssh_password=password,
+                                remote_bind_address=('127.0.0.1', 5432)) as server:
+            server.start()
+
+            conn = connect(username=username, password=password, server=server)
 
 
-try:
-    with SSHTunnelForwarder(('starbug.cs.rit.edu', 22),
-                            ssh_username=username,
-                            ssh_password=password,
-                            remote_bind_address=('127.0.0.1', 5432)) as server:
-        server.start()
-        print("SSH tunnel established")
-        params = {
-            'dbname': dbName,
-            'user': username,
-            'password': password,
-            'host': 'localhost',
-            'port': server.local_bind_port
-        }
+            # use this for testing currently
 
 
-        conn = psycopg.connect(**params)
-        curs = conn.cursor()
-        print("Database connection established")
+            close_connection(conn)
+    except:
+        print("Connection failed")
 
-        #DB work here....
+if __name__ == "__main__":
+    main()
 
-        conn.close()
-except:
-    print("Connection failed")
+
