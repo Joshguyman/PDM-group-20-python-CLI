@@ -1,11 +1,17 @@
 import psycopg
 import getpass
+import json
 import warnings
-warnings.simplefilter("ignore", category=getpass.GetPassWarning)
 from sshtunnel import SSHTunnelForwarder
 
-username = input("Enter username: ")
-password = getpass.getpass("Enter password: ")
+warnings.simplefilter("ignore", category=getpass.GetPassWarning)
+
+secretfile = open("secret.json")
+secret = json.load(secretfile)
+secretfile.close
+
+username = secret["username"] if secret["username"] != "FILL"  else input("Enter username: ")
+password = secret["password"] if secret["password"] != "FILL" else getpass.getpass("Enter password: ")
 dbName = "p32001_20"
 
 
@@ -20,17 +26,19 @@ try:
             'dbname': dbName,
             'user': username,
             'password': password,
-            'host': 'localhost',
+            'host': '127.0.0.1',
             'port': server.local_bind_port
         }
-
 
         conn = psycopg.connect(**params)
         curs = conn.cursor()
         print("Database connection established")
 
         #DB work here....
-
+    
+        print("Attmepting to close connction...")
         conn.close()
-except:
-    print("Connection failed")
+        print("Connection closed")
+
+except Exception as e:
+    print("Connection failed", e)
