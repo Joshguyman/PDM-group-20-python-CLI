@@ -3,6 +3,7 @@ from app.models.db import connect, close_connection
 from app.models.user_model import *
 from app.models.videogame_model import *
 from app.models.collection_model import *
+from app.models.user_model import *
 from sshtunnel import SSHTunnelForwarder
 
 def main():
@@ -20,7 +21,8 @@ def main():
 
 
             # use this for testing currently
-
+            email = "fuzzylavender01@gmail.com"
+            print(get_user_by_email(conn, email))
 
             close_connection(conn)
     except:
