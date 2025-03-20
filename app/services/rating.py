@@ -61,3 +61,21 @@ def get_average_rating(conn, vid):
         return None
     finally:
         curs.close()
+
+def remove_rating(conn, uid, vid):
+    """Remove a user's rating for a game."""
+    if not conn:
+        raise psycopg.OperationalError("Database connection is not established")
+
+    curs = conn.cursor()
+    try:
+        curs.execute("DELETE FROM USER_RATES_VIDEOGAME WHERE UID = %s AND VID = %s", (uid, vid))
+        if curs.rowcount > 0:
+            print(f"Removed rating for game {vid}.")
+        else:
+            print("No rating found to delete.")
+        conn.commit()
+    except psycopg.Error as e:
+        print(f"Database error: {e}")
+    finally:
+        curs.close()
