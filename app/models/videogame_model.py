@@ -45,17 +45,13 @@ def get_videogame_by_platform_id(conn, pid):
         curs.execute("SELECT v.vid, v.title FROM videogame v JOIN platform_contains_videogame p ON p.vid = v.vid WHERE p.pid = %s", (pid,))
         print("Executed Statement")
         list = curs.fetchall()
-        # title_list = []
-        # i = 0
-        # while i < len(id_list):
-        #     title_list[i] = get_videogame_by_id(conn, id_list[i])
         curs.close()
         return list
 
     except psycopg.Error as e:
         print(f"Database error: {e}")
         curs.close()
-        return Noneb
+        return None
 
 
 def get_videogame_by_release_date(conn, re_date):
