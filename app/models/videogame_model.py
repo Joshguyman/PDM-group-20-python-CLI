@@ -28,7 +28,9 @@ FROM videogame v
     JOIN platform_contains_videogame pcv ON v.vid = pcv.vid
     JOIN platform p ON p.pid = pcv.pid
     JOIN contributor ps ON ps.conid = cpv.conid
-    JOIN contributor ds ON ds.conid = cdv.conid WHERE v.vid = %s""", (vid,)
+    JOIN contributor ds ON ds.conid = cdv.conid 
+    WHERE v.vid = %s 
+    ORDER BY v.title ASC, pcv.releasedate ASC""", (vid,)
         )
         print("executed statement")
         user = curs.fetchone()
@@ -69,7 +71,9 @@ FROM videogame v
     JOIN platform_contains_videogame pcv ON v.vid = pcv.vid
     JOIN platform p ON p.pid = pcv.pid
     JOIN contributor ps ON ps.conid = cpv.conid
-    JOIN contributor ds ON ds.conid = cdv.conid WHERE v.title = %s""", (title,)
+    JOIN contributor ds ON ds.conid = cdv.conid 
+    ORDER BY v.title ASC, pcv.releasedate ASC 
+    WHERE v.title = %s""", (title,)
         )
         print("executed statement")
         user = curs.fetchone()
@@ -110,7 +114,9 @@ FROM videogame v
     JOIN platform_contains_videogame pcv ON v.vid = pcv.vid
     JOIN platform p ON p.pid = pcv.pid
     JOIN contributor ps ON ps.conid = cpv.conid
-    JOIN contributor ds ON ds.conid = cdv.conid WHERE p.pid = %s""", (pid,))
+    JOIN contributor ds ON ds.conid = cdv.conid 
+    WHERE p.pid = %s
+    ORDER BY v.title ASC, pcv.releasedate ASC""", (pid,))
         print("Executed Statement")
         list = curs.fetchall()
         curs.close()
@@ -149,7 +155,8 @@ FROM videogame v
     JOIN platform_contains_videogame pcv ON v.vid = pcv.vid
     JOIN platform p ON p.pid = pcv.pid
     JOIN contributor ps ON ps.conid = cpv.conid
-    JOIN contributor ds ON ds.conid = cdv.conid WHERE p.name = %s""", (ptitle,))
+    JOIN contributor ds ON ds.conid = cdv.conid WHERE p.name = %s
+    ORDER BY v.title ASC, pcv.releasedate ASC""", (ptitle,))
         print("Executed Statement")
         vlist = curs.fetchall()
         curs.close()
@@ -188,7 +195,8 @@ FROM videogame v
     JOIN platform_contains_videogame pcv ON v.vid = pcv.vid
     JOIN platform p ON p.pid = pcv.pid
     JOIN contributor ps ON ps.conid = cpv.conid
-    JOIN contributor ds ON ds.conid = cdv.conid WHERE pcv.releasedate = %s""", (re_date,))
+    JOIN contributor ds ON ds.conid = cdv.conid WHERE pcv.releasedate = %s
+    ORDER BY v.title ASC, pcv.releasedate ASC""", (re_date,))
         print("Executed Statement")
         user = curs.fetchall()
         curs.close()
@@ -227,7 +235,8 @@ FROM videogame v
     JOIN platform_contains_videogame pcv ON v.vid = pcv.vid
     JOIN platform p ON p.pid = pcv.pid
     JOIN contributor ps ON ps.conid = cpv.conid
-    JOIN contributor ds ON ds.conid = cdv.conid WHERE cdv.conid = %s""", (conid,))
+    JOIN contributor ds ON ds.conid = cdv.conid WHERE cdv.conid = %s
+    ORDER BY v.title ASC, pcv.releasedate ASC""", (conid,))
         print("Executed Statement")
         vlist = curs.fetchall()
         curs.close()
@@ -266,7 +275,8 @@ FROM videogame v
     JOIN platform_contains_videogame pcv ON v.vid = pcv.vid
     JOIN platform p ON p.pid = pcv.pid
     JOIN contributor ps ON ps.conid = cpv.conid
-    JOIN contributor ds ON ds.conid = cdv.conid WHERE ds.name = %s""", (dname,))
+    JOIN contributor ds ON ds.conid = cdv.conid WHERE ds.name = %s
+    ORDER BY v.title ASC, pcv.releasedate ASC""", (dname,))
         print("Executed Statement")
         vlist = curs.fetchall()
         curs.close()
@@ -305,7 +315,8 @@ FROM videogame v
     JOIN platform_contains_videogame pcv ON v.vid = pcv.vid
     JOIN platform p ON p.pid = pcv.pid
     JOIN contributor ps ON ps.conid = cpv.conid
-    JOIN contributor ds ON ds.conid = cdv.conid WHERE cpv.conid = %s""", (conid,))
+    JOIN contributor ds ON ds.conid = cdv.conid WHERE cpv.conid = %s
+    ORDER BY v.title ASC, pcv.releasedate ASC""", (conid,))
         print("Executed Statement")
         vlist = curs.fetchall()
         curs.close()
@@ -344,7 +355,8 @@ FROM videogame v
     JOIN platform_contains_videogame pcv ON v.vid = pcv.vid
     JOIN platform p ON p.pid = pcv.pid
     JOIN contributor ps ON ps.conid = cpv.conid
-    JOIN contributor ds ON ds.conid = cdv.conid WHERE ps.name = %s""", (pname,))
+    JOIN contributor ds ON ds.conid = cdv.conid WHERE ps.name = %s
+    ORDER BY v.title ASC, pcv.releasedate ASC""", (pname,))
         print("Executed Statement")
         vlist = curs.fetchall()
         curs.close()
@@ -383,7 +395,8 @@ FROM videogame v
     JOIN platform_contains_videogame pcv ON v.vid = pcv.vid
     JOIN platform p ON p.pid = pcv.pid
     JOIN contributor ps ON ps.conid = cpv.conid
-    JOIN contributor ds ON ds.conid = cdv.conid WHERE pcv.price = %s""", (price,))
+    JOIN contributor ds ON ds.conid = cdv.conid WHERE pcv.price = %s
+    ORDER BY v.title ASC, pcv.releasedate ASC""", (price,))
         print("Executed Statement")
         user = curs.fetchall()
         curs.close()
@@ -424,7 +437,8 @@ FROM videogame v
     JOIN genre g ON g.gid = vg.gid
     JOIN videogame_genre vg ON vg.vid = v.vid
     JOIN contributor ps ON ps.conid = cpv.conid
-    JOIN contributor ds ON ds.conid = cdv.conid WHERE vg.gid = %s""", (gid,))
+    JOIN contributor ds ON ds.conid = cdv.conid WHERE vg.gid = %s
+    ORDER BY v.title ASC, pcv.releasedate ASC""", (gid,))
         print("Executed Statement")
         user = curs.fetchall()
         curs.close()
@@ -465,7 +479,8 @@ FROM videogame v
     JOIN videogame_genre vg ON vg.vid = v.vid
     JOIN genre g ON g.gid = vg.gid
     JOIN contributor ps ON ps.conid = cpv.conid
-    JOIN contributor ds ON ds.conid = cdv.conid WHERE g.name = %s""", (gname,))
+    JOIN contributor ds ON ds.conid = cdv.conid WHERE g.name = %s
+    ORDER BY v.title ASC, pcv.releasedate ASC""", (gname,))
         print("Executed Statement")
         vlist = curs.fetchall()
         curs.close()
