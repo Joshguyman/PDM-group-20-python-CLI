@@ -22,7 +22,7 @@ def main():
             print(f"Local bind port: {server.local_bind_port}")
             conn = connect(username=username, password=password, server=server)
 
-
+            create_user(conn, "bruh", "buh", "test", "test")
             # use this for testing currently
 
 
