@@ -12,7 +12,23 @@ def get_videogame_by_id(conn, vid):
     curs = conn.cursor()
     try:
         curs.execute(
-            "SELECT vid, title from videogame WHERE vid = %s", (vid,)
+            """SELECT
+        v.title,
+        p.name,
+        ps.name,
+        ds.name,
+        upv.durationplayed,
+        urv.score,
+        v.esrbrating
+FROM videogame v
+    JOIN contributor_develops_videogame cdv ON v.vid = cdv.vid
+    JOIN contributor_publishes_videogame cpv ON v.vid = cpv.vid
+    JOIN user_plays_videogame upv ON v.vid = upv.vid
+    JOIN user_rates_videogame urv ON v.vid = urv.vid
+    JOIN platform_contains_videogame pcv ON v.vid = pcv.vid
+    JOIN platform p ON p.pid = pcv.pid
+    JOIN contributor ps ON ps.conid = cpv.conid
+    JOIN contributor ds ON ds.conid = cdv.conid WHERE v.vid = %s""", (vid,)
         )
         print("executed statement")
         user = curs.fetchone()
@@ -23,6 +39,7 @@ def get_videogame_by_id(conn, vid):
         print(f"Database error: {e}")
         curs.close()
         return None
+
 
 """
 get_videogame_by_title - gets videogame with game title
@@ -36,7 +53,23 @@ def get_videogame_by_title(conn, title):
     curs = conn.cursor()
     try:
         curs.execute(
-            "SELECT vid, title FROM videogame WHERE title = %s", (title,)
+            """SELECT
+        v.title,
+        p.name,
+        ps.name,
+        ds.name,
+        upv.durationplayed,
+        urv.score,
+        v.esrbrating
+FROM videogame v
+    JOIN contributor_develops_videogame cdv ON v.vid = cdv.vid
+    JOIN contributor_publishes_videogame cpv ON v.vid = cpv.vid
+    JOIN user_plays_videogame upv ON v.vid = upv.vid
+    JOIN user_rates_videogame urv ON v.vid = urv.vid
+    JOIN platform_contains_videogame pcv ON v.vid = pcv.vid
+    JOIN platform p ON p.pid = pcv.pid
+    JOIN contributor ps ON ps.conid = cpv.conid
+    JOIN contributor ds ON ds.conid = cdv.conid WHERE v.title = %s""", (title,)
         )
         print("executed statement")
         user = curs.fetchone()
@@ -47,6 +80,7 @@ def get_videogame_by_title(conn, title):
         print(f"Database error: {e}")
         curs.close()
         return None
+
 
 """
 get_videogame_by_platform_id - gets videogame with given platform id
@@ -60,7 +94,23 @@ def get_videogame_by_platform_id(conn, pid):
     curs = conn.cursor()
     try:
         curs.execute(
-            "SELECT v.vid, v.title FROM videogame v JOIN platform_contains_videogame p ON p.vid = v.vid WHERE p.pid = %s", (pid,))
+            """SELECT
+        v.title,
+        p.name,
+        ps.name,
+        ds.name,
+        upv.durationplayed,
+        urv.score,
+        v.esrbrating
+FROM videogame v
+    JOIN contributor_develops_videogame cdv ON v.vid = cdv.vid
+    JOIN contributor_publishes_videogame cpv ON v.vid = cpv.vid
+    JOIN user_plays_videogame upv ON v.vid = upv.vid
+    JOIN user_rates_videogame urv ON v.vid = urv.vid
+    JOIN platform_contains_videogame pcv ON v.vid = pcv.vid
+    JOIN platform p ON p.pid = pcv.pid
+    JOIN contributor ps ON ps.conid = cpv.conid
+    JOIN contributor ds ON ds.conid = cdv.conid WHERE p.pid = %s""", (pid,))
         print("Executed Statement")
         list = curs.fetchall()
         curs.close()
@@ -70,6 +120,7 @@ def get_videogame_by_platform_id(conn, pid):
         print(f"Database error: {e}")
         curs.close()
         return None
+
 
 """
 get_videogame_by_platform - gets videogame with given platform title
@@ -82,7 +133,23 @@ def get_videogame_by_platform(conn, ptitle):
         raise psycopg.OperationalError("Database connection is not established")
     curs = conn.cursor()
     try:
-        curs.execute("SELECT v.vid, v.title FROM videogame v JOIN platform_contains_videogame p ON p.vid = v.vid JOIN platform pl ON p.pid = pl.pid WHERE pl.name = %s", (ptitle,))
+        curs.execute("""SELECT
+        v.title,
+        p.name,
+        ps.name,
+        ds.name,
+        upv.durationplayed,
+        urv.score,
+        v.esrbrating
+FROM videogame v
+    JOIN contributor_develops_videogame cdv ON v.vid = cdv.vid
+    JOIN contributor_publishes_videogame cpv ON v.vid = cpv.vid
+    JOIN user_plays_videogame upv ON v.vid = upv.vid
+    JOIN user_rates_videogame urv ON v.vid = urv.vid
+    JOIN platform_contains_videogame pcv ON v.vid = pcv.vid
+    JOIN platform p ON p.pid = pcv.pid
+    JOIN contributor ps ON ps.conid = cpv.conid
+    JOIN contributor ds ON ds.conid = cdv.conid WHERE p.name = %s""", (ptitle,))
         print("Executed Statement")
         vlist = curs.fetchall()
         curs.close()
@@ -92,6 +159,7 @@ def get_videogame_by_platform(conn, ptitle):
         print(f"Database error: {e}")
         curs.close()
         return None
+
 
 """
 get_videogame_by_release_date - gets videogame with given release date
@@ -104,7 +172,23 @@ def get_videogame_by_release_date(conn, re_date):
         raise psycopg.OperationalError("Database connection is not established")
     curs = conn.cursor()
     try:
-        curs.execute("SELECT v.vid, v.title FROM videogame v JOIN platform_contains_videogame p ON p.vid = v.vid WHERE p.releasedate = %s", (re_date,))
+        curs.execute("""SELECT
+        v.title,
+        p.name,
+        ps.name,
+        ds.name,
+        upv.durationplayed,
+        urv.score,
+        v.esrbrating
+FROM videogame v
+    JOIN contributor_develops_videogame cdv ON v.vid = cdv.vid
+    JOIN contributor_publishes_videogame cpv ON v.vid = cpv.vid
+    JOIN user_plays_videogame upv ON v.vid = upv.vid
+    JOIN user_rates_videogame urv ON v.vid = urv.vid
+    JOIN platform_contains_videogame pcv ON v.vid = pcv.vid
+    JOIN platform p ON p.pid = pcv.pid
+    JOIN contributor ps ON ps.conid = cpv.conid
+    JOIN contributor ds ON ds.conid = cdv.conid WHERE pcv.releasedate = %s""", (re_date,))
         print("Executed Statement")
         user = curs.fetchall()
         curs.close()
@@ -114,6 +198,7 @@ def get_videogame_by_release_date(conn, re_date):
         print(f"Database error: {e}")
         curs.close()
         return None
+
 
 """
 get_videogame_by_dev_id - gets videogame with given developer id
@@ -126,7 +211,23 @@ def get_videogame_by_dev_id(conn, conid):
         raise psycopg.OperationalError("Database connection is not established")
     curs = conn.cursor()
     try:
-        curs.execute("SELECT v.vid, v.title FROM videogame v JOIN contributor_develops_videogame co ON v.vid = co.vid WHERE co.conid = %s", (conid,))
+        curs.execute("""SELECT
+        v.title,
+        p.name,
+        ps.name,
+        ds.name,
+        upv.durationplayed,
+        urv.score,
+        v.esrbrating
+FROM videogame v
+    JOIN contributor_develops_videogame cdv ON v.vid = cdv.vid
+    JOIN contributor_publishes_videogame cpv ON v.vid = cpv.vid
+    JOIN user_plays_videogame upv ON v.vid = upv.vid
+    JOIN user_rates_videogame urv ON v.vid = urv.vid
+    JOIN platform_contains_videogame pcv ON v.vid = pcv.vid
+    JOIN platform p ON p.pid = pcv.pid
+    JOIN contributor ps ON ps.conid = cpv.conid
+    JOIN contributor ds ON ds.conid = cdv.conid WHERE cdv.conid = %s""", (conid,))
         print("Executed Statement")
         vlist = curs.fetchall()
         curs.close()
@@ -136,6 +237,7 @@ def get_videogame_by_dev_id(conn, conid):
         print(f"Database error: {e}")
         curs.close()
         return None
+
 
 """
 get_videogame_by_dev_name - gets videogame with given developer name
@@ -148,7 +250,23 @@ def get_videogame_by_dev_name(conn, dname):
         raise psycopg.OperationalError("Database connection is not established")
     curs = conn.cursor()
     try:
-        curs.execute("SELECT v.vid, v.title FROM videogame v JOIN contributor_develops_videogame con ON con.vid = v.vid JOIN contributor co ON con.conid = co.conid WHERE co.name = %s", (dname,))
+        curs.execute("""SELECT
+        v.title,
+        p.name,
+        ps.name,
+        ds.name,
+        upv.durationplayed,
+        urv.score,
+        v.esrbrating
+FROM videogame v
+    JOIN contributor_develops_videogame cdv ON v.vid = cdv.vid
+    JOIN contributor_publishes_videogame cpv ON v.vid = cpv.vid
+    JOIN user_plays_videogame upv ON v.vid = upv.vid
+    JOIN user_rates_videogame urv ON v.vid = urv.vid
+    JOIN platform_contains_videogame pcv ON v.vid = pcv.vid
+    JOIN platform p ON p.pid = pcv.pid
+    JOIN contributor ps ON ps.conid = cpv.conid
+    JOIN contributor ds ON ds.conid = cdv.conid WHERE ds.name = %s""", (dname,))
         print("Executed Statement")
         vlist = curs.fetchall()
         curs.close()
@@ -158,6 +276,7 @@ def get_videogame_by_dev_name(conn, dname):
         print(f"Database error: {e}")
         curs.close()
         return None
+
 
 """
 get_videogame_by_dev_id - gets videogame with given publisher id
@@ -170,7 +289,23 @@ def get_videogame_by_pub_id(conn, conid):
         raise psycopg.OperationalError("Database connection is not established")
     curs = conn.cursor()
     try:
-        curs.execute("SELECT v.vid, v.title FROM videogame v JOIN contributor_publishes_videogame co ON v.vid = co.vid WHERE co.conid = %s", (conid,))
+        curs.execute("""SELECT
+        v.title,
+        p.name,
+        ps.name,
+        ds.name,
+        upv.durationplayed,
+        urv.score,
+        v.esrbrating
+FROM videogame v
+    JOIN contributor_develops_videogame cdv ON v.vid = cdv.vid
+    JOIN contributor_publishes_videogame cpv ON v.vid = cpv.vid
+    JOIN user_plays_videogame upv ON v.vid = upv.vid
+    JOIN user_rates_videogame urv ON v.vid = urv.vid
+    JOIN platform_contains_videogame pcv ON v.vid = pcv.vid
+    JOIN platform p ON p.pid = pcv.pid
+    JOIN contributor ps ON ps.conid = cpv.conid
+    JOIN contributor ds ON ds.conid = cdv.conid WHERE cpv.conid = %s""", (conid,))
         print("Executed Statement")
         vlist = curs.fetchall()
         curs.close()
@@ -180,6 +315,7 @@ def get_videogame_by_pub_id(conn, conid):
         print(f"Database error: {e}")
         curs.close()
         return None
+
 
 """
 get_videogame_by_dev_name - gets videogame with given publisher
@@ -192,7 +328,23 @@ def get_videogame_by_pub_name(conn, pname):
         raise psycopg.OperationalError("Database connection is not established")
     curs = conn.cursor()
     try:
-        curs.execute("SELECT v.vid, v.title FROM videogame v JOIN contributor_publishes_videogame con ON con.vid = v.vid JOIN contributor co ON con.conid = co.conid WHERE co.name = %s", (pname,))
+        curs.execute("""SELECT
+        v.title,
+        p.name,
+        ps.name,
+        ds.name,
+        upv.durationplayed,
+        urv.score,
+        v.esrbrating
+FROM videogame v
+    JOIN contributor_develops_videogame cdv ON v.vid = cdv.vid
+    JOIN contributor_publishes_videogame cpv ON v.vid = cpv.vid
+    JOIN user_plays_videogame upv ON v.vid = upv.vid
+    JOIN user_rates_videogame urv ON v.vid = urv.vid
+    JOIN platform_contains_videogame pcv ON v.vid = pcv.vid
+    JOIN platform p ON p.pid = pcv.pid
+    JOIN contributor ps ON ps.conid = cpv.conid
+    JOIN contributor ds ON ds.conid = cdv.conid WHERE ps.name = %s""", (pname,))
         print("Executed Statement")
         vlist = curs.fetchall()
         curs.close()
@@ -215,7 +367,23 @@ def get_videogame_by_price(conn, price):
         raise psycopg.OperationalError("Database connection is not established")
     curs = conn.cursor()
     try:
-        curs.execute("SELECT v.vid, v.title FROM videogame v JOIN platform_contains_videogame p ON p.vid = v.vid WHERE p.price = %s", (price,))
+        curs.execute("""SELECT
+        v.title,
+        p.name,
+        ps.name,
+        ds.name,
+        upv.durationplayed,
+        urv.score,
+        v.esrbrating
+FROM videogame v
+    JOIN contributor_develops_videogame cdv ON v.vid = cdv.vid
+    JOIN contributor_publishes_videogame cpv ON v.vid = cpv.vid
+    JOIN user_plays_videogame upv ON v.vid = upv.vid
+    JOIN user_rates_videogame urv ON v.vid = urv.vid
+    JOIN platform_contains_videogame pcv ON v.vid = pcv.vid
+    JOIN platform p ON p.pid = pcv.pid
+    JOIN contributor ps ON ps.conid = cpv.conid
+    JOIN contributor ds ON ds.conid = cdv.conid WHERE pcv.price = %s""", (price,))
         print("Executed Statement")
         user = curs.fetchall()
         curs.close()
@@ -238,7 +406,25 @@ def get_videogame_by_genre_id(conn, gid):
         raise psycopg.OperationalError("Database connection is not established")
     curs = conn.cursor()
     try:
-        curs.execute("SELECT v.vid, v.title FROM videogame v JOIN videogame_genre g ON g.vid = v.vid WHERE g.gid = %s", (gid,))
+        curs.execute("""SELECT
+        v.title,
+        p.name,
+        ps.name,
+        ds.name,
+        upv.durationplayed,
+        urv.score,
+        v.esrbrating
+FROM videogame v
+    JOIN contributor_develops_videogame cdv ON v.vid = cdv.vid
+    JOIN contributor_publishes_videogame cpv ON v.vid = cpv.vid
+    JOIN user_plays_videogame upv ON v.vid = upv.vid
+    JOIN user_rates_videogame urv ON v.vid = urv.vid
+    JOIN platform_contains_videogame pcv ON v.vid = pcv.vid
+    JOIN platform p ON p.pid = pcv.pid
+    JOIN genre g ON g.gid = vg.gid
+    JOIN videogame_genre vg ON vg.vid = v.vid
+    JOIN contributor ps ON ps.conid = cpv.conid
+    JOIN contributor ds ON ds.conid = cdv.conid WHERE vg.gid = %s""", (gid,))
         print("Executed Statement")
         user = curs.fetchall()
         curs.close()
@@ -248,6 +434,7 @@ def get_videogame_by_genre_id(conn, gid):
         print(f"Database error: {e}")
         curs.close()
         return None
+
 
 """
 get_videogame_by_genre_name - gets videogame with given genre name
@@ -260,7 +447,25 @@ def get_videogame_by_genre_name(conn, gname):
         raise psycopg.OperationalError("Database connection is not established")
     curs = conn.cursor()
     try:
-        curs.execute("SELECT v.vid, v.title FROM videogame v JOIN videogame_genre ge ON ge.vid = v.vid JOIN genre gen ON gen.gid = ge.gid WHERE gen.name = %s", (gname,))
+        curs.execute("""SELECT
+        v.title,
+        p.name,
+        ps.name,
+        ds.name,
+        upv.durationplayed,
+        urv.score,
+        v.esrbrating
+FROM videogame v
+    JOIN contributor_develops_videogame cdv ON v.vid = cdv.vid
+    JOIN contributor_publishes_videogame cpv ON v.vid = cpv.vid
+    JOIN user_plays_videogame upv ON v.vid = upv.vid
+    JOIN user_rates_videogame urv ON v.vid = urv.vid
+    JOIN platform_contains_videogame pcv ON v.vid = pcv.vid
+    JOIN platform p ON p.pid = pcv.pid
+    JOIN videogame_genre vg ON vg.vid = v.vid
+    JOIN genre g ON g.gid = vg.gid
+    JOIN contributor ps ON ps.conid = cpv.conid
+    JOIN contributor ds ON ds.conid = cdv.conid WHERE g.name = %s""", (gname,))
         print("Executed Statement")
         vlist = curs.fetchall()
         curs.close()
