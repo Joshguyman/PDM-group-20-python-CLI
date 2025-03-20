@@ -24,7 +24,14 @@ def main():
 
 
             # use this for testing currently
+            test = int(input("Enter a collection ID: "))
 
+            games = get_games_in_collection(conn, test)
+
+            if games:
+                print(f"Games in collection {test}: {games}")
+            else:
+                print(f"No games found in collection {test}")
 
             close_connection(conn)
     except:
@@ -32,5 +39,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
-

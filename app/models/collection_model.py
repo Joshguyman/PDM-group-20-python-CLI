@@ -64,7 +64,7 @@ def get_games_in_collection(conn, colid):
     try:
         curs.execute(
             """
-            SELECT v.name
+            SELECT v.title  -- Change 'name' to 'title'
             FROM videogame v
             INNER JOIN collection_contains_videogame ccv ON v.vid = ccv.vid
             WHERE ccv.colid = %s
@@ -72,7 +72,7 @@ def get_games_in_collection(conn, colid):
             (colid,)
         )
         games = [row[0] for row in curs.fetchall()]
-        return games # returns a list of game names
+        return games  # Returns a list of game titles
     
     except psycopg.Error as e:
         print(f"Database error: {e}")
