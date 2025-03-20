@@ -45,3 +45,19 @@ def get_user_rating(conn, uid, vid):
         return None
     finally:
         curs.close()
+
+def get_average_rating(conn, vid):
+    """Retrieve the average rating of a video game."""
+    if not conn:
+        raise psycopg.OperationalError("Database connection is not established")
+
+    curs = conn.cursor()
+    try:
+        curs.execute("SELECT AVG(Score) FROM USER_RATES_VIDEOGAME WHERE VID = %s", (vid,))
+        avg_rating = curs.fetchone()
+        return round(avg_rating[0], 2) if avg_rating[0] is not None else None
+    except psycopg.Error as e:
+        print(f"Database error: {e}")
+        return None
+    finally:
+        curs.close()
