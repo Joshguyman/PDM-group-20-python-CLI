@@ -21,6 +21,7 @@ def main():
 
             # use this for testing currently
 
+
             close_connection(conn)
     except:
         print("Connection failed")
