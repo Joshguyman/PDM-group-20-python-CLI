@@ -24,7 +24,7 @@ def main():
 
 
             # use this for testing currently
-
+            print(get_videogame_by_platform_id(conn, 6137))
 
             close_connection(conn)
     except:
