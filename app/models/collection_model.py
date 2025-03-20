@@ -55,3 +55,28 @@ def get_collection_by_user(conn, uid):
         print(f"Database error: {e}")
         curs.close()
         return None
+
+def get_games_in_collection(conn, colid):
+    if not conn:
+        raise psycopg.OperationalError("Database connection is not established")
+    
+    curs = conn.cursor()
+    try:
+        curs.execute(
+            """
+            SELECT v.name
+            FROM videogame v
+            INNER JOIN collection_contains_videogame ccv ON v.vid = ccv.vid
+            WHERE ccv.colid = %s
+            """,
+            (colid,)
+        )
+        games = [row[0] for row in curs.fetchall()]
+        return games # returns a list of game names
+    
+    except psycopg.Error as e:
+        print(f"Database error: {e}")
+        return []
+    
+    finally:
+        curs.close()
