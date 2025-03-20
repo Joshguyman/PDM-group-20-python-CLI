@@ -1,4 +1,5 @@
 import getpass
+from app.cli.user_cli import *
 from app.models.db import connect, close_connection
 from app.models.user_model import *
 from app.models.videogame_model import *
@@ -23,11 +24,11 @@ def main():
             conn = connect(username=username, password=password, server=server)
 
             # use this for testing currently
-
-
+            session_loop()
+            
             close_connection(conn)
-    except:
-        print("Connection failed")
+    except Exception as e:
+        print(f"Connection failed: {e}")
 
 if __name__ == "__main__":
     main()
