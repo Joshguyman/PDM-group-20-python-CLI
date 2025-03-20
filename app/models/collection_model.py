@@ -55,3 +55,21 @@ def get_collection_by_user(conn, uid):
         print(f"Database error: {e}")
         curs.close()
         return None
+
+def add_game(conn, colid, vid):
+    if not conn:
+        raise psycopg.OperationalError("Database connection is not established")
+    curs = conn.cursor()
+    try:
+        curs.execute(
+            "INSERT INTO collection_contains_videogame (colid, vid) VALUES (%s, %s)", (colid, vid)
+        )
+        print("executed statement")
+        user = curs.fetchone()
+        curs.close()
+        return user
+
+    except psycopg.Error as e:
+        print(f"Database error: {e}")
+        curs.close()
+        return None
