@@ -1,8 +1,15 @@
 import psycopg
-from datetime import datetime
 
-def play_video_game(conn, uid, vid, duration):
-    """ Record that user played a specific video game for a given duration """
+def play_video_game(conn, uid, vid, time_started, duration):
+    """
+    Records that a user has played a video_game
+    :param conn: database connection
+    :param uid: integer, User ID
+    :param vid: integer, Video game ID
+    :param time_started: date and time started, in format XXXX-XX-XX XX:XX:XX.XXXXXX
+    :param duration: integer, duration user played.
+    :return: true, if properly executed.
+    """
 
     if not conn:
         raise psycopg.OperationalError("Database connection is not established")
@@ -10,7 +17,7 @@ def play_video_game(conn, uid, vid, duration):
     try:
         curs.execute(
             "INSERT INTO user_plays_videogame (uid, vid, time_started, duration) VALUES (%s, %s, %s, %s);",
-            (uid, vid, datetime.now(), duration)
+            (uid, vid, time_started, duration)
         )
 
         conn.commit()
@@ -18,11 +25,10 @@ def play_video_game(conn, uid, vid, duration):
         return True
     except psycopg.Error as e:
         print(f"Database error: {e}")
-        return False
-    finally:
         curs.close()
+        return False
 
-def play_random_video_game(conn, colid, uid, duration):
+def play_random_video_game(conn, colid, uid, time_started, duration):
     """ Record that user played a random video game from a collection for a given duration """
     if not conn:
         raise psycopg.OperationalError("Database connection is not established")
@@ -41,11 +47,9 @@ def play_random_video_game(conn, colid, uid, duration):
 
         vid = game[0]
 
-        return play_video_game(conn, uid, vid, duration)
+        return play_video_game(conn, uid, vid, time_started, duration)
 
     except psycopg.Error as e:
         print(f"Database error: {e}")
         curs.close()
         return False
-    finally:
-        curs.close()
