@@ -1,4 +1,5 @@
 import psycopg
+from .collection_model import create_collection
 
 def create_user(conn, uid, username, password, firstname, lastname):
     if not conn:
@@ -52,5 +53,20 @@ def get_user_by_username(conn, username):
         curs.close()
         return None
 
-def make_collection(conn, uid, vid):
-    return None
+def add_collection(conn, colid, name, uid):
+    if not conn:
+        raise psycopg.OperationalError("Database connection is not established")
+    curs = conn.cursor()
+    create_collection(conn, colid, name, uid)
+    curs = conn.cursor()
+    try:
+        curs.execute(
+            "INSERT INTO user_makes_collection (colid, uid) Values (%s, %s)", (colid, uid)
+        )
+        print("executed statement")
+        conn.commit()
+        curs.close()
+    except psycopg.Error as e:
+        print(f"Database error: {e}")
+        curs.close()
+        return None
