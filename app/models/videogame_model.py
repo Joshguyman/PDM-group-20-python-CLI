@@ -116,10 +116,10 @@ def get_videogame_by_release_date(conn, re_date):
         return None
 
 """
-get_videogame_by_dev_id - gets videogame with given contributor id (devs only)
+get_videogame_by_dev_id - gets videogame with given developer id
 @param conn
 @param conid
-@return videogames with matching contributor id (devs only)
+@return videogames with matching developer id 
 """
 def get_videogame_by_dev_id(conn, conid):
     if not conn:
@@ -138,10 +138,10 @@ def get_videogame_by_dev_id(conn, conid):
         return None
 
 """
-get_videogame_by_dev_name - gets videogame with given contributor name (devs only)
+get_videogame_by_dev_name - gets videogame with given developer name
 @param conn
 @param dname
-@return videogames with matching contributor name (devs only)
+@return videogames with matching developer name
 """
 def get_videogame_by_dev_name(conn, dname):
     if not conn:
@@ -158,6 +158,51 @@ def get_videogame_by_dev_name(conn, dname):
         print(f"Database error: {e}")
         curs.close()
         return None
+
+"""
+get_videogame_by_dev_id - gets videogame with given publisher id
+@param conn
+@param conid
+@return videogames with matching publisher id
+"""
+def get_videogame_by_pub_id(conn, conid):
+    if not conn:
+        raise psycopg.OperationalError("Database connection is not established")
+    curs = conn.cursor()
+    try:
+        curs.execute("SELECT v.vid, v.title FROM videogame v JOIN contributor_publishes_videogame co ON v.vid = co.vid WHERE co.conid = %s", (conid,))
+        print("Executed Statement")
+        vlist = curs.fetchall()
+        curs.close()
+        return vlist
+
+    except psycopg.Error as e:
+        print(f"Database error: {e}")
+        curs.close()
+        return None
+
+"""
+get_videogame_by_dev_name - gets videogame with given publisher
+@param conn
+@param pname
+@return videogames with matching publisher name
+"""
+def get_videogame_by_pub_name(conn, pname):
+    if not conn:
+        raise psycopg.OperationalError("Database connection is not established")
+    curs = conn.cursor()
+    try:
+        curs.execute("SELECT v.vid, v.title FROM videogame v JOIN contributor_publishes_videogame con ON con.vid = v.vid JOIN contributor co ON con.conid = co.conid WHERE co.name = %s", (pname,))
+        print("Executed Statement")
+        vlist = curs.fetchall()
+        curs.close()
+        return vlist
+
+    except psycopg.Error as e:
+        print(f"Database error: {e}")
+        curs.close()
+        return None
+
 
 """
 get_videogame_by_price - gets videogame with given price
