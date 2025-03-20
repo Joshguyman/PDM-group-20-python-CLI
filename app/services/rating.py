@@ -30,3 +30,18 @@ def rate_videogame(conn, uid, vid, score):
     finally:
         curs.close()
 
+def get_user_rating(conn, uid, vid):
+    """Retrieve a user's rating for a specific game."""
+    if not conn:
+        raise psycopg.OperationalError("Database connection is not established")
+
+    curs = conn.cursor()
+    try:
+        curs.execute("SELECT Score FROM USER_RATES_VIDEOGAME WHERE UID = %s AND VID = %s", (uid, vid))
+        rating = curs.fetchone()
+        return rating[0] if rating else None
+    except psycopg.Error as e:
+        print(f"Database error: {e}")
+        return None
+    finally:
+        curs.close()
