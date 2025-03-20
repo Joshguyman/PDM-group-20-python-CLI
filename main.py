@@ -3,6 +3,7 @@ from app.models.db import connect, close_connection
 from app.models.user_model import *
 from app.models.videogame_model import *
 from app.models.collection_model import *
+from app.services.user_services import *
 from sshtunnel import SSHTunnelForwarder
 
 def main():
