@@ -53,6 +53,7 @@ def get_user_by_username(conn, username):
         curs.close()
         return None
 
+      
 def get_user_by_email(conn, email):
     if not conn:
         raise psycopg.OperationalError("Database connection is not established")
