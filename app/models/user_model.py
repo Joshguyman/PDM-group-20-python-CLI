@@ -71,7 +71,6 @@ def get_user_by_id(conn, uid):
         curs.close()
         return None
 
-
 def get_user_by_username(conn, username):
     if not conn:
         raise psycopg.OperationalError("Database connection is not established")

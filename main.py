@@ -6,6 +6,8 @@ from app.models.videogame_model import *
 from app.models.collection_model import *
 from app.services.user_services import *
 from sshtunnel import SSHTunnelForwarder
+import time
+
 
 def main():
     username = input("Username: ")
@@ -25,6 +27,7 @@ def main():
 
             # use this for testing currently
 
+            user_accesses_application(conn, 4)
 
             close_connection(conn)
     except Exception as e:
