@@ -1,10 +1,7 @@
 import getpass
 from app.cli.user_cli import *
 from app.models.db import connect, close_connection
-from app.models.user_model import *
-from app.models.videogame_model import *
-from app.models.collection_model import *
-from app.services.user_services import *
+from app.models.collection_model import get_collection_details
 from sshtunnel import SSHTunnelForwarder
 import time
 
@@ -25,7 +22,7 @@ def main():
             print(f"Local bind port: {server.local_bind_port}")
             conn = connect(username=username, password=password, server=server)
 
-            # use this for testing currently
+            # Get user ID
 
 
             close_connection(conn)
