@@ -6,7 +6,8 @@ sign_in: sign in with a username and password
 @:return uid of the user
 """
 from app.models.user_model import *
-
+from app.models.videogame_model import *
+from datetime import datetime
 
 def sign_in(conn, username, password):
     result = get_user_by_username(conn, username)
@@ -74,15 +75,57 @@ search_videogame: search a video game by title, platform, release date, develope
 @:param searchtype -> int specifying the search type (i.e 1 for title, 2 for platform, 3 for release date, 4 for developer, 5 for genre)
 @:return list of videogames with the specified value
 """
-def search_videogame(val, searchtype):
-    return None
+def search_videogame(conn, title):
+    if not conn:
+        raise psycopg.OperationalError("Database connection is not established")
+    curs = conn.cursor()
+    try:
+        curs.execute(
+            """SELECT v.vid FROM videogame v WHERE v.title ILIKE %s""", (title,)
+        )
+        print("executed statement")
+        user = curs.fetchone()
+        curs.close()
+        return user
+
+    except psycopg.Error as e:
+        print(f"Database error: {e}")
+        curs.close()
+        return None
+
+
 """
 play_videogame: start playing a video game
 @:param name -> the name of the game to be played
 @:return tuple containing the vid of the game being played, and the start time of playing the game
 """
-def play_videogame(name):
-    return None
+def play_videogame(conn, name, uid):
+    if not conn:
+        raise psycopg.OperationalError("Database connection is not established")
+
+    result = search_videogame(conn, name, uid)
+    if result:
+        curs = conn.cursor()
+        vid = result[0]
+        try:
+            current_time = datetime.now()
+            formatted_time = current_time.strftime("%Y-%m-%d %H:%M:%S.%f")
+            curs.execute(
+                "INSERT INTO user_plays_game (uid, vid, timestarted, durationplayed) VALUES (%s, %s, %s, %s)",
+                (uid, vid, formatted_time, 0)
+            )
+            conn.commit()
+            curs.close()
+            return
+
+        except psycopg.Error as e:
+            print(f"Database error: {e}")
+            curs.close()
+            return None
+    else:
+        print("Game ID/Username")
+        return
+
 """
 stop_playing_videogame: stop playing the currently active video game
 updates the database with the elapsed time since starting the game
@@ -90,12 +133,13 @@ updates the database with the elapsed time since starting the game
 """
 def stop_playing_videogame(name):
     return None
+
 """
 play_videogame: start playing a random video game from a collection
 @:param name -> the name of the collection
 @:return tuple containing the vid of the game being played, and the start time of playing the game
 """
-def play_random_videogame(name):
+def play_random_videogame(conn, collection):
 
     return None
 """

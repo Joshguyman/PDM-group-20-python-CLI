@@ -24,8 +24,8 @@ def main():
             conn = connect(username=username, password=password, server=server)
 
             # use this for testing currently
-            session_loop()
-            
+
+
             close_connection(conn)
     except Exception as e:
         print(f"Connection failed: {e}")
