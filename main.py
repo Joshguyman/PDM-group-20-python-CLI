@@ -22,7 +22,6 @@ def main():
             print(f"Local bind port: {server.local_bind_port}")
             conn = connect(username=username, password=password, server=server)
 
-
             # use this for testing currently
 
 

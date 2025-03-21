@@ -19,7 +19,7 @@ def connect(username: str, password: str, server):
         'dbname': DBNAME,
         'user': username,
         'password': password,
-        'host': 'localhost',
+        'host': HOSTADDRESS,
         'port': server.local_bind_port
     }
 
