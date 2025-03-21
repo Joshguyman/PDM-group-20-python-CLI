@@ -1,11 +1,10 @@
 import getpass
 from app.cli.user_cli import *
 from app.models.db import connect, close_connection
-from app.models.user_model import *
-from app.models.videogame_model import *
-from app.models.collection_model import *
-from app.services.user_services import *
+from app.models.collection_model import get_collection_details
 from sshtunnel import SSHTunnelForwarder
+import time
+
 
 def main():
     username = input("Username: ")
@@ -26,6 +25,8 @@ def main():
             # use this for testing currently
             session_loop(conn)
             
+            # Get user ID
+
             close_connection(conn)
     except Exception as e:
         print(f"Connection failed: {e}")
