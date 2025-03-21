@@ -71,9 +71,8 @@ FROM videogame v
     JOIN platform_contains_videogame pcv ON v.vid = pcv.vid
     JOIN platform p ON p.pid = pcv.pid
     JOIN contributor ps ON ps.conid = cpv.conid
-    JOIN contributor ds ON ds.conid = cdv.conid 
-    ORDER BY v.title ASC, pcv.releasedate ASC 
-    WHERE v.title = %s""", (title,)
+    JOIN contributor ds ON ds.conid = cdv.conid WHERE v.title ILIKE %s
+    ORDER BY v.title ASC, pcv.releasedate ASC """, (title,)
         )
         print("executed statement")
         user = curs.fetchone()
@@ -150,12 +149,12 @@ def get_videogame_by_platform(conn, ptitle):
 FROM videogame v
     JOIN contributor_develops_videogame cdv ON v.vid = cdv.vid
     JOIN contributor_publishes_videogame cpv ON v.vid = cpv.vid
-    JOIN user_plays_videogame upv ON v.vid = upv.vid
-    JOIN user_rates_videogame urv ON v.vid = urv.vid
+    LEFT JOIN user_plays_videogame upv ON v.vid = upv.vid
+    LEFT JOIN user_rates_videogame urv ON v.vid = urv.vid
     JOIN platform_contains_videogame pcv ON v.vid = pcv.vid
     JOIN platform p ON p.pid = pcv.pid
     JOIN contributor ps ON ps.conid = cpv.conid
-    JOIN contributor ds ON ds.conid = cdv.conid WHERE p.name = %s
+    JOIN contributor ds ON ds.conid = cdv.conid WHERE p.name ILIKE %s
     ORDER BY v.title ASC, pcv.releasedate ASC""", (ptitle,))
         print("Executed Statement")
         vlist = curs.fetchall()
@@ -195,7 +194,7 @@ FROM videogame v
     JOIN platform_contains_videogame pcv ON v.vid = pcv.vid
     JOIN platform p ON p.pid = pcv.pid
     JOIN contributor ps ON ps.conid = cpv.conid
-    JOIN contributor ds ON ds.conid = cdv.conid WHERE pcv.releasedate = %s
+    JOIN contributor ds ON ds.conid = cdv.conid WHERE v.releasedate = %s
     ORDER BY v.title ASC, pcv.releasedate ASC""", (re_date,))
         print("Executed Statement")
         user = curs.fetchall()
@@ -275,7 +274,7 @@ FROM videogame v
     JOIN platform_contains_videogame pcv ON v.vid = pcv.vid
     JOIN platform p ON p.pid = pcv.pid
     JOIN contributor ps ON ps.conid = cpv.conid
-    JOIN contributor ds ON ds.conid = cdv.conid WHERE ds.name = %s
+    JOIN contributor ds ON ds.conid = cdv.conid WHERE ds.name ILIKE %s
     ORDER BY v.title ASC, pcv.releasedate ASC""", (dname,))
         print("Executed Statement")
         vlist = curs.fetchall()
@@ -355,7 +354,7 @@ FROM videogame v
     JOIN platform_contains_videogame pcv ON v.vid = pcv.vid
     JOIN platform p ON p.pid = pcv.pid
     JOIN contributor ps ON ps.conid = cpv.conid
-    JOIN contributor ds ON ds.conid = cdv.conid WHERE ps.name = %s
+    JOIN contributor ds ON ds.conid = cdv.conid WHERE ps.name ILIKE %s
     ORDER BY v.title ASC, pcv.releasedate ASC""", (pname,))
         print("Executed Statement")
         vlist = curs.fetchall()
@@ -390,8 +389,8 @@ def get_videogame_by_price(conn, price):
 FROM videogame v
     JOIN contributor_develops_videogame cdv ON v.vid = cdv.vid
     JOIN contributor_publishes_videogame cpv ON v.vid = cpv.vid
-    JOIN user_plays_videogame upv ON v.vid = upv.vid
-    JOIN user_rates_videogame urv ON v.vid = urv.vid
+    LEFT JOIN user_plays_videogame upv ON v.vid = upv.vid
+    LEFT JOIN user_rates_videogame urv ON v.vid = urv.vid
     JOIN platform_contains_videogame pcv ON v.vid = pcv.vid
     JOIN platform p ON p.pid = pcv.pid
     JOIN contributor ps ON ps.conid = cpv.conid
@@ -434,8 +433,8 @@ FROM videogame v
     JOIN user_rates_videogame urv ON v.vid = urv.vid
     JOIN platform_contains_videogame pcv ON v.vid = pcv.vid
     JOIN platform p ON p.pid = pcv.pid
-    JOIN genre g ON g.gid = vg.gid
     JOIN videogame_genre vg ON vg.vid = v.vid
+    JOIN genre g ON g.gid = vg.gid
     JOIN contributor ps ON ps.conid = cpv.conid
     JOIN contributor ds ON ds.conid = cdv.conid WHERE vg.gid = %s
     ORDER BY v.title ASC, pcv.releasedate ASC""", (gid,))
@@ -479,7 +478,7 @@ FROM videogame v
     JOIN videogame_genre vg ON vg.vid = v.vid
     JOIN genre g ON g.gid = vg.gid
     JOIN contributor ps ON ps.conid = cpv.conid
-    JOIN contributor ds ON ds.conid = cdv.conid WHERE g.name = %s
+    JOIN contributor ds ON ds.conid = cdv.conid WHERE g.name ILIKE %s
     ORDER BY v.title ASC, pcv.releasedate ASC""", (gname,))
         print("Executed Statement")
         vlist = curs.fetchall()
