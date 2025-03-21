@@ -10,17 +10,17 @@ credentials_loaded: bool = False
 
 def help_message():
     print(
-          "Create a Collection (CC <collection_name>"
+          "Create a Collection (CC)"
           "View Your Collections (CV)"
-          "Add Games to your Collection (CA <collection_name> <space_separated_list_of_game_titles>) "
-          "Delete Games from your Collection (CA <collection_name> <space_separated_list_of_game_titles>) "
-          "Search for game by Name (SN <game_name>) "
-          "Search for game by Platform (SP <platform_name>) "
-          "Search for game by Release Date (SR <release_date>) "
-          "Search for game by Developer (SD <dev_name>) "
-          "Search for game by Publisher (SP <pub_name>) "
-          "Search for game by Price (SPR <price>) "
-          "Search for game by Genre (SG <genre_name>) "
+          "Add Games to your Collection (CA) "
+          "Delete Games from your Collection (CA) "
+          "Search for game by Name (SN) "
+          "Search for game by Platform (SP) "
+          "Search for game by Release Date (SR) "
+          "Search for game by Developer (SD) "
+          "Search for game by Publisher (SP) "
+          "Search for game by Price (SPR) "
+          "Search for game by Genre (SG) "
     )
 
 def session_loop():
@@ -39,8 +39,9 @@ def session_loop():
                 print("passwords match")
                 uid = sign_in(session_username, session_password)
                 if (uid):
+                    return
 
-                # TODO: set credentials_loaded to true under the condition that sign_in worked then proceed to live loop
+            #   TODO: set credentials_loaded to true under the condition that sign_in worked then proceed to live loop
             else:
                 print("Passwords did not match!")
 

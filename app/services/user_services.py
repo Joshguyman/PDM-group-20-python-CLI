@@ -5,8 +5,20 @@ sign_in: sign in with a username and password
 @:param password
 @:return uid of the user
 """
-def sign_in(username, password):
-    return None
+from app.models.user_model import *
+
+
+def sign_in(conn, username, password):
+    result = get_user_by_username(conn, username)
+    if not result:
+        print("User not found")
+        return None
+    tmp = get_user_password(conn, result[0])[0]
+    if password != tmp :
+        print(f"No User with password \"{password}\"")
+        return None
+    print("Signed in as:", result[1])
+    return result[0]
 """
 create_account: create an account for a user
 @:param username
@@ -16,8 +28,16 @@ create_account: create an account for a user
 @:param email
 @:return uid of the created user
 """
-def create_account(username, password, first_name, last_name, email):
-    return None
+def create_account(conn, username, password, first_name, last_name, email):
+    result = create_user(conn, username, password, first_name, last_name, email)
+    if not result:
+        print(f"Username \"{username}\" or Email \"{email}\" is already in use")
+        return None
+
+    print("Successfully created account")
+
+    return result[0]
+
 """
 new_collection: create a new collection
 @:param name -> name of the new collection
