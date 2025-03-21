@@ -35,7 +35,6 @@ def create_account(conn, username, password, first_name, last_name, email):
         return None
 
     print("Successfully created account")
-
     return result[0]
 
 """
@@ -44,16 +43,21 @@ new_collection: create a new collection
 @:param uid -> id of the user creating the collection
 @:return colid of the new collection
 """
-def new_collection(name, uid):
-    return None
+def new_collection(conn, name, uid):
+    colid = create_collection(conn, name, uid)
+    if not colid:
+        print("Issue creating collection")
+        return None
+    print(f"Successfully created \"{name}\" collection")
+    return colid
 """
 add_games_to_collection: add games to an existing collection owned by the user
-@:param name -> name of the existing collection
+@:param colid -> id of the existing collection
 @:param uid -> id of the user who owns the collection
 @:param games -> list of game titles to add to the collection
 @:return None (might change idk)
 """
-def add_games_to_collection(name, uid, games:list):
+def add_games_to_collection(colid, uid, games:list):
     return None
 """
 remove_games_from_collection: remove games from an existing collection owned by the user

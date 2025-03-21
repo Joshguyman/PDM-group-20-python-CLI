@@ -7,23 +7,20 @@ def create_user(conn: psycopg.Connection, username, password, firstname, lastnam
     curs = conn.cursor()
     try:
         curs.execute(
-            "INSERT INTO users (username, password, firstname, lastname) VALUES (%s, %s, %s, %s)",
+            "INSERT INTO users (username, password, firstname, lastname) VALUES (%s, %s, %s, %s) RETURNING uid",
             ( username, password, firstname, lastname)
-        )
-        curs.execute(
-            "SELECT uid FROM users WHERE username = %s", (username,)
         )
         uid = curs.fetchone()[0]
         curs.execute(
             "INSERT INTO email (uid, email) VALUES (%s, %s)", (uid, email)
         )
         conn.commit()
-
+        curs.close()
         return uid
     except Exception:
-        return None
-    finally:
         curs.close()
+        return None
+
 def add_email(conn: psycopg.Connection, uid, email):
     if not conn:
         raise psycopg.OperationalError("Database connection is not established")
@@ -34,6 +31,7 @@ def add_email(conn: psycopg.Connection, uid, email):
         )
         conn.commit()
     except Exception:
+        curs.close()
         return None
     finally:
         curs.close()
