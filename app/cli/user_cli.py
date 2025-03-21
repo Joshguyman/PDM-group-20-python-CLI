@@ -39,9 +39,8 @@ def session_loop():
                 print("passwords match")
                 uid = sign_in(session_username, session_password)
                 if (uid):
-                    return
 
-            #   TODO: set credentials_loaded to true under the condition that sign_in worked then proceed to live loop
+                # TODO: set credentials_loaded to true under the condition that sign_in worked then proceed to live loop
             else:
                 print("Passwords did not match!")
 
