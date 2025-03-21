@@ -1,5 +1,40 @@
 import psycopg
 
+
+
+
+def get_videogame_id(conn, title):
+    if not conn:
+        raise psycopg.OperationalError("Database connection is not established")
+    curs = conn.cursor()
+    try:
+        curs.execute(
+            "SELECT vid FROM videogame WHERE title = %s",(title,)
+        )
+        vid = curs.fetchone()
+        curs.close()
+        return vid
+    except Exception as e:
+        print(e)
+        curs.close()
+        return None
+def search_videogame_title(conn, title):
+    if not conn:
+        raise psycopg.OperationalError("Database connection is not established")
+
+    curs = conn.cursor()
+    try:
+        curs.execute(
+            """SELECT v.vid FROM videogame v WHERE v.title ILIKE %s""", (title,)
+        )
+        user = curs.fetchone()
+        curs.close()
+        return user
+
+    except psycopg.Error as e:
+        print(f"Database error: {e}")
+        curs.close()
+        return None
 """
 get_videogame_by_id - gets videogame with given vid
 @param conn
@@ -13,13 +48,14 @@ def get_videogame_by_id(conn, vid):
     try:
         curs.execute(
             """SELECT
-        v.title,
-        p.name,
-        ps.name,
-        ds.name,
-        upv.durationplayed,
-        urv.score,
-        v.esrbrating
+       v.title,
+    STRING_AGG(DISTINCT p.name, ', ') AS platforms,
+    STRING_AGG(DISTINCT ps.name, ', ') AS publishers,
+    STRING_AGG(DISTINCT ds.name, ', ') AS developers,
+    STRING_AGG(DISTINCT upv.durationplayed::TEXT, ', ') AS playtimes,
+    STRING_AGG(DISTINCT urv.score::TEXT, ', ') AS ratings,
+    STRING_AGG(DISTINCT g.name, ', ') AS genres,
+    v.esrbrating
 FROM videogame v
     JOIN contributor_develops_videogame cdv ON v.vid = cdv.vid
     JOIN contributor_publishes_videogame cpv ON v.vid = cpv.vid
@@ -27,10 +63,13 @@ FROM videogame v
     LEFT JOIN user_rates_videogame urv ON v.vid = urv.vid
     JOIN platform_contains_videogame pcv ON v.vid = pcv.vid
     JOIN platform p ON p.pid = pcv.pid
+    JOIN videogame_genre vg ON vg.vid = v.vid
+    JOIN genre g ON g.gid = vg.gid
     JOIN contributor ps ON ps.conid = cpv.conid
-    JOIN contributor ds ON ds.conid = cdv.conid 
-    WHERE v.vid = %s 
-    ORDER BY v.title ASC, pcv.releasedate ASC""", (vid,)
+    JOIN contributor ds ON ds.conid = cdv.conid
+WHERE v.vid = %s
+GROUP BY v.title, v.esrbrating
+ORDER BY v.title ASC""", (vid,)
         )
         print("executed statement")
         user = curs.fetchone()
@@ -56,13 +95,14 @@ def get_videogame_by_title(conn, title):
     try:
         curs.execute(
             """SELECT
-        v.title,
-        p.name,
-        ps.name,
-        ds.name,
-        upv.durationplayed,
-        urv.score,
-        v.esrbrating
+       v.title,
+    STRING_AGG(DISTINCT p.name, ', ') AS platforms,
+    STRING_AGG(DISTINCT ps.name, ', ') AS publishers,
+    STRING_AGG(DISTINCT ds.name, ', ') AS developers,
+    STRING_AGG(DISTINCT upv.durationplayed::TEXT, ', ') AS playtimes,
+    STRING_AGG(DISTINCT urv.score::TEXT, ', ') AS ratings,
+    STRING_AGG(DISTINCT g.name, ', ') AS genres,
+    v.esrbrating
 FROM videogame v
     JOIN contributor_develops_videogame cdv ON v.vid = cdv.vid
     JOIN contributor_publishes_videogame cpv ON v.vid = cpv.vid
@@ -70,12 +110,16 @@ FROM videogame v
     LEFT JOIN user_rates_videogame urv ON v.vid = urv.vid
     JOIN platform_contains_videogame pcv ON v.vid = pcv.vid
     JOIN platform p ON p.pid = pcv.pid
+    JOIN videogame_genre vg ON vg.vid = v.vid
+    JOIN genre g ON g.gid = vg.gid
     JOIN contributor ps ON ps.conid = cpv.conid
-    JOIN contributor ds ON ds.conid = cdv.conid WHERE v.title ILIKE %s
-    ORDER BY v.title ASC, pcv.releasedate ASC """, (title,)
+    JOIN contributor ds ON ds.conid = cdv.conid
+WHERE v.title ILIKE %s
+GROUP BY v.title, v.esrbrating
+ORDER BY v.title ASC""", (title,)
         )
         print("executed statement")
-        user = curs.fetchone()
+        user = curs.fetchall()
         curs.close()
         return user
 
@@ -139,13 +183,14 @@ def get_videogame_by_platform(conn, ptitle):
     curs = conn.cursor()
     try:
         curs.execute("""SELECT
-        v.title,
-        p.name,
-        ps.name,
-        ds.name,
-        upv.durationplayed,
-        urv.score,
-        v.esrbrating
+      v.title,
+    STRING_AGG(DISTINCT p.name, ', ') AS platforms,
+    STRING_AGG(DISTINCT ps.name, ', ') AS publishers,
+    STRING_AGG(DISTINCT ds.name, ', ') AS developers,
+    STRING_AGG(DISTINCT upv.durationplayed::TEXT, ', ') AS playtimes,
+    STRING_AGG(DISTINCT urv.score::TEXT, ', ') AS ratings,
+    STRING_AGG(DISTINCT g.name, ', ') AS genres,
+    v.esrbrating
 FROM videogame v
     JOIN contributor_develops_videogame cdv ON v.vid = cdv.vid
     JOIN contributor_publishes_videogame cpv ON v.vid = cpv.vid
@@ -153,9 +198,13 @@ FROM videogame v
     LEFT JOIN user_rates_videogame urv ON v.vid = urv.vid
     JOIN platform_contains_videogame pcv ON v.vid = pcv.vid
     JOIN platform p ON p.pid = pcv.pid
+    JOIN videogame_genre vg ON vg.vid = v.vid
+    JOIN genre g ON g.gid = vg.gid
     JOIN contributor ps ON ps.conid = cpv.conid
-    JOIN contributor ds ON ds.conid = cdv.conid WHERE p.name ILIKE %s
-    ORDER BY v.title ASC, pcv.releasedate ASC""", (ptitle,))
+    JOIN contributor ds ON ds.conid = cdv.conid
+GROUP BY v.title, v.esrbrating
+HAVING STRING_AGG(DISTINCT p.name, ', ') ILIKE %s
+ORDER BY v.title ASC""", (f"%{ptitle}%",))
         print("Executed Statement")
         vlist = curs.fetchall()
         curs.close()
@@ -179,13 +228,14 @@ def get_videogame_by_release_date(conn, re_date):
     curs = conn.cursor()
     try:
         curs.execute("""SELECT
-        v.title,
-        p.name,
-        ps.name,
-        ds.name,
-        upv.durationplayed,
-        urv.score,
-        v.esrbrating
+      v.title,
+    STRING_AGG(DISTINCT p.name, ', ') AS platforms,
+    STRING_AGG(DISTINCT ps.name, ', ') AS publishers,
+    STRING_AGG(DISTINCT ds.name, ', ') AS developers,
+    STRING_AGG(DISTINCT upv.durationplayed::TEXT, ', ') AS playtimes,
+    STRING_AGG(DISTINCT urv.score::TEXT, ', ') AS ratings,
+    STRING_AGG(DISTINCT g.name, ', ') AS genres,
+    v.esrbrating
 FROM videogame v
     JOIN contributor_develops_videogame cdv ON v.vid = cdv.vid
     JOIN contributor_publishes_videogame cpv ON v.vid = cpv.vid
@@ -193,9 +243,13 @@ FROM videogame v
     LEFT JOIN user_rates_videogame urv ON v.vid = urv.vid
     JOIN platform_contains_videogame pcv ON v.vid = pcv.vid
     JOIN platform p ON p.pid = pcv.pid
+    JOIN videogame_genre vg ON vg.vid = v.vid
+    JOIN genre g ON g.gid = vg.gid
     JOIN contributor ps ON ps.conid = cpv.conid
-    JOIN contributor ds ON ds.conid = cdv.conid WHERE v.releasedate = %s
-    ORDER BY v.title ASC, pcv.releasedate ASC""", (re_date,))
+    JOIN contributor ds ON ds.conid = cdv.conid
+WHERE v.releasedate = %s
+GROUP BY v.title, v.esrbrating
+ORDER BY v.title ASC""", (re_date,))
         print("Executed Statement")
         user = curs.fetchall()
         curs.close()
@@ -259,13 +313,14 @@ def get_videogame_by_dev_name(conn, dname):
     curs = conn.cursor()
     try:
         curs.execute("""SELECT
-        v.title,
-        p.name,
-        ps.name,
-        ds.name,
-        upv.durationplayed,
-        urv.score,
-        v.esrbrating
+       v.title,
+    STRING_AGG(DISTINCT p.name, ', ') AS platforms,
+    STRING_AGG(DISTINCT ps.name, ', ') AS publishers,
+    STRING_AGG(DISTINCT ds.name, ', ') AS developers,
+    STRING_AGG(DISTINCT upv.durationplayed::TEXT, ', ') AS playtimes,
+    STRING_AGG(DISTINCT urv.score::TEXT, ', ') AS ratings,
+    STRING_AGG(DISTINCT g.name, ', ') AS genres,
+    v.esrbrating
 FROM videogame v
     JOIN contributor_develops_videogame cdv ON v.vid = cdv.vid
     JOIN contributor_publishes_videogame cpv ON v.vid = cpv.vid
@@ -273,9 +328,13 @@ FROM videogame v
     LEFT JOIN user_rates_videogame urv ON v.vid = urv.vid
     JOIN platform_contains_videogame pcv ON v.vid = pcv.vid
     JOIN platform p ON p.pid = pcv.pid
+    JOIN videogame_genre vg ON vg.vid = v.vid
+    JOIN genre g ON g.gid = vg.gid
     JOIN contributor ps ON ps.conid = cpv.conid
-    JOIN contributor ds ON ds.conid = cdv.conid WHERE ds.name ILIKE %s
-    ORDER BY v.title ASC, pcv.releasedate ASC""", (dname,))
+    JOIN contributor ds ON ds.conid = cdv.conid
+WHERE ds.name ILIKE %s
+GROUP BY v.title, v.esrbrating
+ORDER BY v.title ASC""", (dname,))
         print("Executed Statement")
         vlist = curs.fetchall()
         curs.close()
@@ -339,13 +398,14 @@ def get_videogame_by_pub_name(conn, pname):
     curs = conn.cursor()
     try:
         curs.execute("""SELECT
-        v.title,
-        p.name,
-        ps.name,
-        ds.name,
-        upv.durationplayed,
-        urv.score,
-        v.esrbrating
+       v.title,
+    STRING_AGG(DISTINCT p.name, ', ') AS platforms,
+    STRING_AGG(DISTINCT ps.name, ', ') AS publishers,
+    STRING_AGG(DISTINCT ds.name, ', ') AS developers,
+    STRING_AGG(DISTINCT upv.durationplayed::TEXT, ', ') AS playtimes,
+    STRING_AGG(DISTINCT urv.score::TEXT, ', ') AS ratings,
+    STRING_AGG(DISTINCT g.name, ', ') AS genres,
+    v.esrbrating
 FROM videogame v
     JOIN contributor_develops_videogame cdv ON v.vid = cdv.vid
     JOIN contributor_publishes_videogame cpv ON v.vid = cpv.vid
@@ -353,9 +413,13 @@ FROM videogame v
     LEFT JOIN user_rates_videogame urv ON v.vid = urv.vid
     JOIN platform_contains_videogame pcv ON v.vid = pcv.vid
     JOIN platform p ON p.pid = pcv.pid
+    JOIN videogame_genre vg ON vg.vid = v.vid
+    JOIN genre g ON g.gid = vg.gid
     JOIN contributor ps ON ps.conid = cpv.conid
-    JOIN contributor ds ON ds.conid = cdv.conid WHERE ps.name ILIKE %s
-    ORDER BY v.title ASC, pcv.releasedate ASC""", (pname,))
+    JOIN contributor ds ON ds.conid = cdv.conid
+WHERE ps.name ILIKE %s
+GROUP BY v.title, v.esrbrating
+ORDER BY v.title ASC""", (pname,))
         print("Executed Statement")
         vlist = curs.fetchall()
         curs.close()
@@ -379,13 +443,14 @@ def get_videogame_by_price(conn, price):
     curs = conn.cursor()
     try:
         curs.execute("""SELECT
-        v.title,
-        p.name,
-        ps.name,
-        ds.name,
-        upv.durationplayed,
-        urv.score,
-        v.esrbrating
+       v.title,
+    STRING_AGG(DISTINCT p.name, ', ') AS platforms,
+    STRING_AGG(DISTINCT ps.name, ', ') AS publishers,
+    STRING_AGG(DISTINCT ds.name, ', ') AS developers,
+    STRING_AGG(DISTINCT upv.durationplayed::TEXT, ', ') AS playtimes,
+    STRING_AGG(DISTINCT urv.score::TEXT, ', ') AS ratings,
+    STRING_AGG(DISTINCT g.name, ', ') AS genres,
+    v.esrbrating
 FROM videogame v
     JOIN contributor_develops_videogame cdv ON v.vid = cdv.vid
     JOIN contributor_publishes_videogame cpv ON v.vid = cpv.vid
@@ -393,9 +458,13 @@ FROM videogame v
     LEFT JOIN user_rates_videogame urv ON v.vid = urv.vid
     JOIN platform_contains_videogame pcv ON v.vid = pcv.vid
     JOIN platform p ON p.pid = pcv.pid
+    JOIN videogame_genre vg ON vg.vid = v.vid
+    JOIN genre g ON g.gid = vg.gid
     JOIN contributor ps ON ps.conid = cpv.conid
-    JOIN contributor ds ON ds.conid = cdv.conid WHERE pcv.price = %s
-    ORDER BY v.title ASC, pcv.releasedate ASC""", (price,))
+    JOIN contributor ds ON ds.conid = cdv.conid
+WHERE pcv.price = %s
+GROUP BY v.title, v.esrbrating
+ORDER BY v.title ASC""", (price,))
         print("Executed Statement")
         user = curs.fetchall()
         curs.close()
@@ -461,13 +530,14 @@ def get_videogame_by_genre_name(conn, gname):
     curs = conn.cursor()
     try:
         curs.execute("""SELECT
-        v.title,
-        p.name,
-        ps.name,
-        ds.name,
-        upv.durationplayed,
-        urv.score,
-        v.esrbrating
+    v.title,
+    STRING_AGG(DISTINCT p.name, ', ') AS platforms,
+    STRING_AGG(DISTINCT ps.name, ', ') AS publishers,
+    STRING_AGG(DISTINCT ds.name, ', ') AS developers,
+    STRING_AGG(DISTINCT upv.durationplayed::TEXT, ', ') AS playtimes,
+    STRING_AGG(DISTINCT urv.score::TEXT, ', ') AS ratings,
+    STRING_AGG(DISTINCT g.name, ', ') AS genres,
+    v.esrbrating
 FROM videogame v
     JOIN contributor_develops_videogame cdv ON v.vid = cdv.vid
     JOIN contributor_publishes_videogame cpv ON v.vid = cpv.vid
@@ -478,8 +548,10 @@ FROM videogame v
     JOIN videogame_genre vg ON vg.vid = v.vid
     JOIN genre g ON g.gid = vg.gid
     JOIN contributor ps ON ps.conid = cpv.conid
-    JOIN contributor ds ON ds.conid = cdv.conid WHERE g.name ILIKE %s
-    ORDER BY v.title ASC, pcv.releasedate ASC""", (gname,))
+    JOIN contributor ds ON ds.conid = cdv.conid
+GROUP BY v.title, v.esrbrating
+HAVING STRING_AGG(DISTINCT g.name, ', ') ILIKE %s
+ORDER BY v.title ASC""", (f"%{gname}%",))
         print("Executed Statement")
         vlist = curs.fetchall()
         curs.close()

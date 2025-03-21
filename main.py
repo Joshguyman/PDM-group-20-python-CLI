@@ -6,6 +6,8 @@ from app.models.videogame_model import *
 from app.models.collection_model import *
 from app.services.user_services import *
 from sshtunnel import SSHTunnelForwarder
+import time
+
 
 def main():
     username = input("Username: ")
@@ -24,8 +26,8 @@ def main():
             conn = connect(username=username, password=password, server=server)
 
             # use this for testing currently
-            session_loop()
-            
+
+
             close_connection(conn)
     except Exception as e:
         print(f"Connection failed: {e}")
