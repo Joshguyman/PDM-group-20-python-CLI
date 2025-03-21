@@ -23,7 +23,7 @@ def main():
             conn = connect(username=username, password=password, server=server)
 
             # use this for testing currently
-            print(get_videogame_by_title(conn, "Elden RINg"))
+
 
             close_connection(conn)
     except:
