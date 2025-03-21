@@ -92,18 +92,63 @@ play_videogame: start playing a random video game from a collection
 @:return tuple containing the vid of the game being played, and the start time of playing the game
 """
 def play_random_videogame(name):
+
     return None
 """
 follow_user: follow a user, updates the corresponding db table for the current user to follow another user
+@:param followee: id of user that wants to follow
 @:param username: the username of the user to be followed
 @:return None (idk)
 """
-def follow_user(username):
-    return None
+def follow_user(conn, followee, username):
+    if not conn:
+        raise psycopg.OperationalError("Database connection is not established")
+
+    result = get_user_by_username(conn, username)
+    if result and get_user_by_id(conn, followee):
+        curs = conn.cursor()
+        follower = result[0]
+        try:
+            curs.execute(
+                "INSERT INTO user_follows_user (follower, followee) VALUES (%s, %s)",
+                (followee, follower)
+            )
+            conn.commit()
+            curs.close()
+            return
+
+        except psycopg.Error as e:
+            print(f"Database error: {e}")
+            curs.close()
+            return None
+    else:
+        print("Invalid ID/Username")
+        return
+
+
 """
 search_user: searches and returns a uid from the db
 @:param val -> the value to be searched
-@:param searchtype -> int specifying the search type (i.e 1 for username, 2 for uid, 3 for email)
+@:param searchtype -> int specifying the search type (i.e 0 for username, 1 for email)
 """
-def search_user(val, searchtype):
-    return None
+def search_user(conn, val, searchtype):
+    match searchtype:
+        case 0:
+            result = get_user_by_username(conn, val)
+            if result:
+                print(result)
+                return result[0]
+            else:
+                print("User not found")
+                return
+        case 1:
+            result = get_user_by_email(conn, val)
+            if result:
+                print(result)
+                return result[0]
+            else:
+                print("User not found")
+                return
+        case _:
+            print("Incorrect search type")
+            return
