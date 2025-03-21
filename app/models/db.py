@@ -31,5 +31,6 @@ close_connection:
 @param: conn -> psycopg database connection 
 """
 def close_connection(conn: psycopg.Connection):
+    print("Attempting to close connection...")
     conn.close()
     print("Connection closed Successfully")

@@ -1,7 +1,10 @@
 import getpass
+from app.cli.user_cli import *
 from app.models.db import connect, close_connection
 from app.models.collection_model import get_collection_details
 from sshtunnel import SSHTunnelForwarder
+import time
+
 
 def main():
     username = input("Username: ")

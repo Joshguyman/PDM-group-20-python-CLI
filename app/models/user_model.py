@@ -1,20 +1,57 @@
 import psycopg
 from .collection_model import create_collection
 
-def create_user(conn, username, password, firstname, lastname):
+def create_user(conn: psycopg.Connection, username, password, firstname, lastname, email):
     if not conn:
         raise psycopg.OperationalError("Database connection is not established")
     curs = conn.cursor()
     try:
         curs.execute(
-            "INSERT INTO users (username, password, firstname, lastname) VALUES (%s, %s, %s, %s)",
+            "INSERT INTO users (username, password, firstname, lastname) VALUES (%s, %s, %s, %s) RETURNING uid",
             ( username, password, firstname, lastname)
         )
+        uid = curs.fetchone()[0]
+        curs.execute(
+            "INSERT INTO email (uid, email) VALUES (%s, %s)", (uid, email)
+        )
         conn.commit()
-    except psycopg.Error as e:
-        print(f"Database error: {e}")
+        curs.close()
+        return uid
+    except Exception:
+        curs.close()
+        return None
+
+def add_email(conn: psycopg.Connection, uid, email):
+    if not conn:
+        raise psycopg.OperationalError("Database connection is not established")
+    curs = conn.cursor()
+    try:
+        curs.execute(
+            "INSERT INTO email (uid, email) VALUES (%s, %s)", (uid, email)
+        )
+        conn.commit()
+    except Exception:
+        curs.close()
+        return None
     finally:
         curs.close()
+
+def get_user_password(conn, uid):
+    if not conn:
+        raise psycopg.OperationalError("Database connection is not established")
+    curs = conn.cursor()
+    try:
+        curs.execute(
+            "SELECT password from users WHERE uid = %s", (uid,)
+        )
+        password = curs.fetchone()
+        curs.close()
+        return password
+
+    except psycopg.Error as e:
+        print(f"Database error: {e}")
+        curs.close()
+        return None
 
 def get_user_by_id(conn, uid):
     if not conn:
@@ -22,7 +59,7 @@ def get_user_by_id(conn, uid):
     curs = conn.cursor()
     try:
         curs.execute(
-            "SELECT uid, username from users WHERE uid = %s", (uid,)
+            "SELECT uid, username, password from users WHERE uid = %s", (uid,)
         )
         print("executed statement")
         user = curs.fetchone()
@@ -33,7 +70,6 @@ def get_user_by_id(conn, uid):
         print(f"Database error: {e}")
         curs.close()
         return None
-
 
 def get_user_by_username(conn, username):
     if not conn:
