@@ -27,7 +27,6 @@ def main():
 
             # use this for testing currently
 
-            user_accesses_application(conn, 4)
 
             close_connection(conn)
     except Exception as e:
