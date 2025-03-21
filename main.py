@@ -22,8 +22,10 @@ def main():
             print(f"Local bind port: {server.local_bind_port}")
             conn = connect(username=username, password=password, server=server)
 
+            # use this for testing currently
+            session_loop(conn)
+            
             # Get user ID
-
 
             close_connection(conn)
     except Exception as e:
