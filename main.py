@@ -1,9 +1,6 @@
 import getpass
 from app.models.db import connect, close_connection
-from app.models.user_model import *
-from app.models.videogame_model import *
-from app.models.collection_model import *
-from app.services.user_services import *
+from app.models.collection_model import get_collection_details
 from sshtunnel import SSHTunnelForwarder
 
 def main():
@@ -22,14 +19,12 @@ def main():
             print(f"Local bind port: {server.local_bind_port}")
             conn = connect(username=username, password=password, server=server)
 
-            # use this for testing currently
+            # Get user ID
 
 
             close_connection(conn)
-    except:
-        print("Connection failed")
+    except Exception as e:
+        print(f"Connection failed: {e}")
 
 if __name__ == "__main__":
     main()
-
-

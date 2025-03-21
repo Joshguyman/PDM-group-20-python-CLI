@@ -77,31 +77,33 @@ def add_game(conn, colid, vid):
 import psycopg
 
 def get_collection_details(conn, uid):
-    """
-    Retrieves all collections owned by a user, including:
-    - Collection Name
-    - Number of Games in Collection
-    - Total Play Time (formatted as HH:MM)
-
-    :param conn: Database connection
-    :param uid: User ID
-    :return: List of collections with details
-    """
-
     if not conn:
         raise psycopg.OperationalError("Database connection is not established")
-    
+
     curs = conn.cursor()
     try:
+        # Check if the user has collections
+        curs.execute("SELECT COUNT(*) FROM collection WHERE uid = %s", (uid,))
+        count = curs.fetchone()[0]
+        if count == 0:
+            print("No collections found for this user.")
+            return []
+
+        # Run the main query
         curs.execute("""
             SELECT 
                 c.name AS collection_name,
                 COUNT(ccv.vid) AS game_count,
                 COALESCE(
                     TO_CHAR(
-                        INTERVAL '1 second' * SUM(upv.duration), 'HH24:MI'
+                        INTERVAL '1 second' * SUM(
+                            (split_part(upv.durationplayed, ':', 1)::INT * 3600) + 
+                            (split_part(upv.durationplayed, ':', 2)::INT * 60)
+                        ), 
+                        'HH24:MI'
                     ), '00:00'
-                ) AS total_play_time
+                ) AS total_play_time,
+                ARRAY_AGG(upv.durationplayed) AS durations  -- Debugging: Print the durations
             FROM collection c
             LEFT JOIN collection_contains_videogame ccv ON c.colid = ccv.colid
             LEFT JOIN user_plays_videogame upv ON ccv.vid = upv.vid AND upv.uid = %s
@@ -111,11 +113,26 @@ def get_collection_details(conn, uid):
         """, (uid, uid))
 
         collections = curs.fetchall()
-        curs.close()
 
-        return collections
+        # Debugging output
+        print(f"Retrieved collections: {collections}") 
+
+        # Unpacking the values correctly
+        results = []
+        for collection in collections:
+            collection_name = collection[0]
+            game_count = collection[1]
+            total_play_time = collection[2]
+            durations = collection[3]
+            print(f"Collection: {collection_name}, Games: {game_count}, Total Playtime: {total_play_time}")
+            print(f"Durations: {durations}")
+            results.append((collection_name, game_count, total_play_time))
+
+        return results
 
     except psycopg.Error as e:
         print(f"Database error: {e}")
-        curs.close()
         return None
+    finally:
+        curs.close()
+
