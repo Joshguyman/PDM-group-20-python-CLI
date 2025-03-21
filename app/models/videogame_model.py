@@ -23,8 +23,8 @@ def get_videogame_by_id(conn, vid):
 FROM videogame v
     JOIN contributor_develops_videogame cdv ON v.vid = cdv.vid
     JOIN contributor_publishes_videogame cpv ON v.vid = cpv.vid
-    JOIN user_plays_videogame upv ON v.vid = upv.vid
-    JOIN user_rates_videogame urv ON v.vid = urv.vid
+    LEFT JOIN user_plays_videogame upv ON v.vid = upv.vid
+    LEFT JOIN user_rates_videogame urv ON v.vid = urv.vid
     JOIN platform_contains_videogame pcv ON v.vid = pcv.vid
     JOIN platform p ON p.pid = pcv.pid
     JOIN contributor ps ON ps.conid = cpv.conid
@@ -66,8 +66,8 @@ def get_videogame_by_title(conn, title):
 FROM videogame v
     JOIN contributor_develops_videogame cdv ON v.vid = cdv.vid
     JOIN contributor_publishes_videogame cpv ON v.vid = cpv.vid
-    JOIN user_plays_videogame upv ON v.vid = upv.vid
-    JOIN user_rates_videogame urv ON v.vid = urv.vid
+    LEFT JOIN user_plays_videogame upv ON v.vid = upv.vid
+    LEFT JOIN user_rates_videogame urv ON v.vid = urv.vid
     JOIN platform_contains_videogame pcv ON v.vid = pcv.vid
     JOIN platform p ON p.pid = pcv.pid
     JOIN contributor ps ON ps.conid = cpv.conid
@@ -108,8 +108,8 @@ def get_videogame_by_platform_id(conn, pid):
 FROM videogame v
     JOIN contributor_develops_videogame cdv ON v.vid = cdv.vid
     JOIN contributor_publishes_videogame cpv ON v.vid = cpv.vid
-    JOIN user_plays_videogame upv ON v.vid = upv.vid
-    JOIN user_rates_videogame urv ON v.vid = urv.vid
+    LEFT JOIN user_plays_videogame upv ON v.vid = upv.vid
+    LEFT JOIN user_rates_videogame urv ON v.vid = urv.vid
     JOIN platform_contains_videogame pcv ON v.vid = pcv.vid
     JOIN platform p ON p.pid = pcv.pid
     JOIN contributor ps ON ps.conid = cpv.conid
@@ -189,8 +189,8 @@ def get_videogame_by_release_date(conn, re_date):
 FROM videogame v
     JOIN contributor_develops_videogame cdv ON v.vid = cdv.vid
     JOIN contributor_publishes_videogame cpv ON v.vid = cpv.vid
-    JOIN user_plays_videogame upv ON v.vid = upv.vid
-    JOIN user_rates_videogame urv ON v.vid = urv.vid
+    LEFT JOIN user_plays_videogame upv ON v.vid = upv.vid
+    LEFT JOIN user_rates_videogame urv ON v.vid = urv.vid
     JOIN platform_contains_videogame pcv ON v.vid = pcv.vid
     JOIN platform p ON p.pid = pcv.pid
     JOIN contributor ps ON ps.conid = cpv.conid
@@ -229,8 +229,8 @@ def get_videogame_by_dev_id(conn, conid):
 FROM videogame v
     JOIN contributor_develops_videogame cdv ON v.vid = cdv.vid
     JOIN contributor_publishes_videogame cpv ON v.vid = cpv.vid
-    JOIN user_plays_videogame upv ON v.vid = upv.vid
-    JOIN user_rates_videogame urv ON v.vid = urv.vid
+    LEFT JOIN user_plays_videogame upv ON v.vid = upv.vid
+    LEFT JOIN user_rates_videogame urv ON v.vid = urv.vid
     JOIN platform_contains_videogame pcv ON v.vid = pcv.vid
     JOIN platform p ON p.pid = pcv.pid
     JOIN contributor ps ON ps.conid = cpv.conid
@@ -269,8 +269,8 @@ def get_videogame_by_dev_name(conn, dname):
 FROM videogame v
     JOIN contributor_develops_videogame cdv ON v.vid = cdv.vid
     JOIN contributor_publishes_videogame cpv ON v.vid = cpv.vid
-    JOIN user_plays_videogame upv ON v.vid = upv.vid
-    JOIN user_rates_videogame urv ON v.vid = urv.vid
+    LEFT JOIN user_plays_videogame upv ON v.vid = upv.vid
+    LEFT JOIN user_rates_videogame urv ON v.vid = urv.vid
     JOIN platform_contains_videogame pcv ON v.vid = pcv.vid
     JOIN platform p ON p.pid = pcv.pid
     JOIN contributor ps ON ps.conid = cpv.conid
@@ -309,8 +309,8 @@ def get_videogame_by_pub_id(conn, conid):
 FROM videogame v
     JOIN contributor_develops_videogame cdv ON v.vid = cdv.vid
     JOIN contributor_publishes_videogame cpv ON v.vid = cpv.vid
-    JOIN user_plays_videogame upv ON v.vid = upv.vid
-    JOIN user_rates_videogame urv ON v.vid = urv.vid
+    LEFT JOIN user_plays_videogame upv ON v.vid = upv.vid
+    LEFT JOIN user_rates_videogame urv ON v.vid = urv.vid
     JOIN platform_contains_videogame pcv ON v.vid = pcv.vid
     JOIN platform p ON p.pid = pcv.pid
     JOIN contributor ps ON ps.conid = cpv.conid
@@ -349,8 +349,8 @@ def get_videogame_by_pub_name(conn, pname):
 FROM videogame v
     JOIN contributor_develops_videogame cdv ON v.vid = cdv.vid
     JOIN contributor_publishes_videogame cpv ON v.vid = cpv.vid
-    JOIN user_plays_videogame upv ON v.vid = upv.vid
-    JOIN user_rates_videogame urv ON v.vid = urv.vid
+    LEFT JOIN user_plays_videogame upv ON v.vid = upv.vid
+    LEFT JOIN user_rates_videogame urv ON v.vid = urv.vid
     JOIN platform_contains_videogame pcv ON v.vid = pcv.vid
     JOIN platform p ON p.pid = pcv.pid
     JOIN contributor ps ON ps.conid = cpv.conid
@@ -429,8 +429,8 @@ def get_videogame_by_genre_id(conn, gid):
 FROM videogame v
     JOIN contributor_develops_videogame cdv ON v.vid = cdv.vid
     JOIN contributor_publishes_videogame cpv ON v.vid = cpv.vid
-    JOIN user_plays_videogame upv ON v.vid = upv.vid
-    JOIN user_rates_videogame urv ON v.vid = urv.vid
+    LEFT JOIN user_plays_videogame upv ON v.vid = upv.vid
+    LEFT JOIN user_rates_videogame urv ON v.vid = urv.vid
     JOIN platform_contains_videogame pcv ON v.vid = pcv.vid
     JOIN platform p ON p.pid = pcv.pid
     JOIN videogame_genre vg ON vg.vid = v.vid
@@ -471,8 +471,8 @@ def get_videogame_by_genre_name(conn, gname):
 FROM videogame v
     JOIN contributor_develops_videogame cdv ON v.vid = cdv.vid
     JOIN contributor_publishes_videogame cpv ON v.vid = cpv.vid
-    JOIN user_plays_videogame upv ON v.vid = upv.vid
-    JOIN user_rates_videogame urv ON v.vid = urv.vid
+    LEFT JOIN user_plays_videogame upv ON v.vid = upv.vid
+    LEFT JOIN user_rates_videogame urv ON v.vid = urv.vid
     JOIN platform_contains_videogame pcv ON v.vid = pcv.vid
     JOIN platform p ON p.pid = pcv.pid
     JOIN videogame_genre vg ON vg.vid = v.vid
