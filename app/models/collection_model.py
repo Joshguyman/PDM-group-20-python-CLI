@@ -128,7 +128,6 @@ def get_collection_details(conn, uid):
         curs.execute("SELECT COUNT(*) FROM collection WHERE uid = %s", (uid,))
         count = curs.fetchone()[0]
         if count == 0:
-            print("No collections found for this user.")
             return []
 
         # Run the main query
@@ -156,28 +155,14 @@ def get_collection_details(conn, uid):
 
         collections = curs.fetchall()
 
-        # Debugging output
-        print(f"Retrieved collections: {collections}") 
-
         # Unpacking the values correctly
-        results = []
-        for collection in collections:
-            collection_name = collection[0]
-            game_count = collection[1]
-            total_play_time = collection[2]
-            durations = collection[3]
-            print(f"Collection: {collection_name}, Games: {game_count}, Total Playtime: {total_play_time}")
-            print(f"Durations: {durations}")
-            results.append((collection_name, game_count, total_play_time))
-
-        return results
+        curs.close()
+        return collections
 
     except psycopg.Error as e:
         print(f"Database error: {e}")
-        return None
-    finally:
         curs.close()
-        return
+        return None
 
 def check_collection_owner(conn, uid, colid) -> bool:
     if not conn:
@@ -214,4 +199,81 @@ def check_game_in_collection(conn, colid, vid) -> bool:
     except Exception:
         curs.close()
         return False
+
+
+def change_collection_name(conn, uid, colid, name):
+    if not conn:
+        raise psycopg.OperationalError("Database connection is not established")
+    curs = conn.cursor()
+    if check_collection_owner(conn, uid, colid):
+        try:
+            curs.execute(
+                "UPDATE collection SET name = %s WHERE colid = %s", (name, colid)
+            )
+            conn.commit()
+            curs.close()
+            return
+        except Exception:
+            curs.close()
+            return
+    else:
+        curs.close()
+        print("Failed to rename.")
+        return
+
+def delete_collection(conn, uid, colid):
+    if not conn:
+        raise psycopg.OperationalError("Database connection is not established")
+
+    curs = conn.cursor()
+    if check_collection_owner(conn, uid, colid):
+        try:
+            curs.execute(
+                "DELETE FROM user_makes_collection WHERE colid = %s", (colid,))
+            conn.commit()
+            curs.execute(
+                "DELETE FROM collection WHERE colid = %s", (colid,))
+            conn.commit()
+            curs.close()
+            print(f"Collection # {colid} successfully removed.")
+            return
+
+        except Exception:
+            print("Unable to delete collection")
+            conn.rollback()
+            curs.close()
+            return
+    else:
+        print("Invalid Collection")
+        curs.close()
+        return
+
+def get_collection_by_name(conn, uid, name):
+    if not conn:
+        raise psycopg.OperationalError("Database connection is not established")
+
+    curs = conn.cursor()
+    try:
+        curs.execute("SELECT COUNT(*) FROM collection WHERE uid = %s", (uid,))
+        count = curs.fetchone()[0]
+        if count == 0:
+            print("No collections found for this user.")
+            return
+        else:
+            curs.execute("SELECT name, colid FROM collection WHERE name ILIKE %s AND uid = %s", (name, uid,))
+            result = curs.fetchall()
+            if result:
+                curs.close()
+                return result
+            else:
+                curs.close()
+                print("No collections with given name found for this user")
+                return
+
+    except Exception:
+        print("get_collection_by_name FAIL")
+        curs.close()
+        return
+
+
 
