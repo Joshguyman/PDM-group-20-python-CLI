@@ -21,6 +21,7 @@ def help_message():
           "\tDelete Games from your Collection (CDG)\n"
           "\tModify the name of one of your Collections (CM)\n"
           "\tDelete one of your Collections (CD)\n"
+          "\tRename one of your Collections (CR)\n"
           "Games:\n"
           "\tPlay a specific Game (PG)\n"
           "\tPlay a random Game from a Collection (PRG)\n"
@@ -74,6 +75,8 @@ def command_handler(conn):
             if len(clist) > 1:
                 index = int(same_collection_name(conn, clist)) - 1
             remove_games_from_collection(conn, clist[index][1], session_uid, removed_games_list)
+        case "cr":
+            print("")
         case "sn":
             searched_game = input("Enter game name: ")
             # TODO: Call function once it is implemented
@@ -109,7 +112,7 @@ def command_handler(conn):
         case "uuf":
             print("TODO")
         case "gr":
-
+            print("TODO")
         case _:
             print("Please enter a valid command, input H for help.")
             

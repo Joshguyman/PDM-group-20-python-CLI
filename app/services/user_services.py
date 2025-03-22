@@ -38,7 +38,7 @@ def create_account(conn, username, password, first_name, last_name, email):
         return None
 
     print("Successfully created account")
-    return result[0]
+    return result
 
 
 """
