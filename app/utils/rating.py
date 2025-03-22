@@ -1,28 +1,33 @@
 import psycopg
 
+from app.models.videogame_model import get_videogame_by_id
+
+
 def rate_videogame(conn, uid, vid, score):
     """Insert or update a user's rating for a video game."""
     if not conn:
         raise psycopg.OperationalError("Database connection is not established")
     
-    if score < 0 or score > 5:
+    if int(score) < 0 or int(score) > 5:
         print("Error: Rating must be between 0 and 5 stars.")
         return
 
     curs = conn.cursor()
     try:
         # Check if the user has already rated the game
-        curs.execute("SELECT Score FROM USER_RATES_VIDEOGAME WHERE UID = %s AND VID = %s", (uid, vid))
+        curs.execute("SELECT score FROM user_rates_videogame WHERE uid = %s AND vid = %s", (uid, vid))
         existing_rating = curs.fetchone()
+
+        title = get_videogame_by_id(conn, vid)[0]
 
         if existing_rating:
             # Update existing rating
-            curs.execute("UPDATE USER_RATES_VIDEOGAME SET Score = %s WHERE UID = %s AND VID = %s", (score, uid, vid))
-            print(f"Updated rating for game {vid} to {score}.")
+            curs.execute("UPDATE user_rates_videogame SET score = %s WHERE uid = %s AND vid = %s", (score, uid, vid))
+            print(f"Updated rating for game \"{title}\" to {score}.")
         else:
             # Insert new rating
-            curs.execute("INSERT INTO USER_RATES_VIDEOGAME (UID, VID, Score) VALUES (%s, %s, %s)", (uid, vid, score))
-            print(f"Added rating {score} for game {vid}.")
+            curs.execute("INSERT INTO user_rates_videogame (uid, vid, score) VALUES (%s, %s, %s)", (uid, vid, score))
+            print(f"Added rating {score} for game \"{title}\".")
         
         conn.commit()
     except psycopg.Error as e:

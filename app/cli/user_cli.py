@@ -1,5 +1,6 @@
 # Imports
 from app.services.user_services import *
+from app.models.videogame_model import *
 import getpass
 
 # Session variables
@@ -21,27 +22,18 @@ def help_message():
           "\tDelete Games from your Collection (CD)\n"
           "\tRename a Collention (CR)\n"
           "Games:\n"
-          "\tPlay a specific Game (PG)\n"
-          "\tPlay a random Game from a Collection\n"
           "\tSearch for Game by various ways (SG)\n"
           "\tDelete Games from your Collection (CDG)\n"
           "\tModify the name of one of your Collections (CM)\n"
           "\tDelete one of your Collections (CD)\n"
-          "Games:\n"
           "\tPlay a specific Game (PG)\n"
           "\tPlay a random Game from a Collection (PRG)\n"
-          "\tSearch for Game by Name (SN)\n"
-          "\tSearch for Game by Platform (SPL)\n"
-          "\tSearch for Game by Release Date (SR)\n"
-          "\tSearch for Game by Developer (SD)\n"
-          "\tSearch for Game by Publisher (SPB)\n"
-          "\tSearch for Game by Price (SPR)\n"
-          "\tSearch for Game by Genre (SG)\n"
+          "\tStop playing a running Game(PS)\n"
+          "\tRate a Game (R)\n"
           "Users:\n"
           "\tSearch for User (SU)\n"
           "\tFollow User (UF)\n"
           "\tUnfollow User (UUF)\n"
-          "\tRate a Game (R)\n"
           "Quit program (Q)"
     )
 
@@ -92,24 +84,6 @@ def command_handler(conn):
             if len(clist) > 1:
                 index = int(same_collection_name(conn, clist)) - 1
             remove_games_from_collection(conn, clist[index][1], session_uid, removed_games_list)
-        case "sn":
-            searched_game = input("Enter game name: ")
-            # TODO: Call function once it is implemented
-        case "spl":
-            searched_platform = input("Enter platform name: ")
-            # TODO: Call function once it is implemented
-        case "sr":
-            searched_release_date = input("Enter release date: ")
-            # TODO: Call function once it is implemented
-        case "sd":
-            searched_developer = input("Enter developer name: ")
-            # TODO: Call function once it is implemented
-        case "spb":
-            searched_publisher = input("Enter publisher name: ")
-            # TODO: Call function once it is implemented
-        case "spr":
-            searched_price = input("Enter price: ")
-            # TODO: Call function once it is implemented
         case "sg":
             is_type_valid = False
             valid_types = ["title", "platform", "release date", "developer", "publisher", "genre", "price"]
@@ -141,6 +115,10 @@ def command_handler(conn):
                         print("Please enter a valid order type.")
                 is_ascending = False if (input("Sort by Ascending or Descending?(A/D): ").lower() == "d") else True
             search_videogame(conn, searched_input, searched_type, order_input, not (is_ascending))
+        case "pg":
+            play_videogame(conn, input("Enter the game you wish to play"), session_uid)
+        case "ps":
+            stop_playing_videogame(conn, input("Enter the game you wish to stop playing"), )
         case "q":
             session_live = False
         case "su":
@@ -156,10 +134,8 @@ def command_handler(conn):
             unfollowed_user = input("Who do you want to unfollow: ")
             unfollow_user(conn, session_uid, unfollowed_user)
         case "r":
-            get_videogame_by_title(conn, input("Enter the game you wish to rate: "))
-            create_rating(conn, session_uid, )
-        case "gr":
-
+            vid = search_videogame_title(conn, input("Enter the game you wish to rate: "))[0]
+            create_rating(conn, session_uid, vid, input("Enter your score: "))
         case _:
             print("Please enter a valid command, input H for help.")
             
