@@ -20,7 +20,7 @@ def help_message():
           "\tAdd Games to your Collection (CA)\n"
           "\tDelete Games from your Collection (CDG)\n"
           "\tModify the name of one of your Collections (CM)\n"
-          "\tDelete one of your Collections (CDC)\n"
+          "\tDelete one of your Collections (CD)\n"
           "Games:\n"
           "\tPlay a specific Game (PG)\n"
           "\tPlay a random Game from a Collection (PRG)\n"
@@ -31,6 +31,7 @@ def help_message():
           "\tSearch for Game by Publisher (SPB)\n"
           "\tSearch for Game by Price (SPR)\n"
           "\tSearch for Game by Genre (SG)\n"
+          "\tRate a Game (GR)\n"
           "Users:\n"
           "\tSearch for User (SU)\n"
           "\tFollow User (UF)\n"
@@ -48,25 +49,31 @@ def command_handler(conn):
         case "cc":
             new_collection(conn, input("Enter a name for your new collection: "), session_uid)
         case "cv":
-            # TODO
-            input_ = input("")
+            get_collection_details(conn, session_uid)
         case "ca":
             added_games_list = []
             adding_games = True
-            while (adding_games):
-                cur_game = input("Enter the name of the game you with to add: ")
+            while adding_games:
+                cur_game = input("Enter the name of the game you wish to add: ")
                 added_games_list.append(cur_game)
                 adding_games = False if (input("Done adding games?(Y/N): ").lower() == "y") else True
-            # TODO: Call function once it is implemented
-            print(added_games_list)
+            clist = get_collection_by_name(conn, session_uid, input("Enter the name of the collection to add to: "))
+            index = 0
+            if len(clist) > 1:
+                index = int(same_collection_name(conn, clist)) - 1
+            add_games_to_collection(conn, clist[index][1], session_uid, added_games_list)
         case "cd":
             removed_games_list = []
             removing_games = True
-            while (removing_games):
+            while removing_games:
                 cur_game = input("Enter the name of the game you with to remove: ")
                 removed_games_list.append(cur_game)
-                adding_games = False if (input("Done removing games?(Y/N): ").lower() == "y") else True
-            # TODO: Call function once it is implemented
+                removing_games = False if (input("Done removing games?(Y/N): ").lower() == "y") else True
+            clist = get_collection_by_name(conn, session_uid, input("Enter the name of the collection to delete from: "))
+            index = 0
+            if len(clist) > 1:
+                index = int(same_collection_name(conn, clist)) - 1
+            remove_games_from_collection(conn, clist[index][1], session_uid, removed_games_list)
         case "sn":
             searched_game = input("Enter game name: ")
             # TODO: Call function once it is implemented
@@ -101,6 +108,8 @@ def command_handler(conn):
             follow_user(conn, session_uid, followed_user)
         case "uuf":
             print("TODO")
+        case "gr":
+
         case _:
             print("Please enter a valid command, input H for help.")
             
@@ -144,6 +153,19 @@ def session_loop(conn):
     # TODO: Better welcome and leaving message
     print("\n\nWelcome to the videogame program\n")
     help_message()
-    while (session_live):
+    while session_live:
         command_handler(conn)
     print("Bye for now")
+
+def same_collection_name(conn, result):
+    if not conn:
+        raise psycopg.OperationalError("Database connection is not established")
+
+    print(f"{'Entry Name':<15} {'ID':<5}")
+    print("-" * 22)
+    for name, colid in result:
+        print(f"{name:<15} {colid:<5}")
+    return input("Which collection were you referring to? (1-n): ")
+
+# mZ1_Rey\
+# eharCollection1

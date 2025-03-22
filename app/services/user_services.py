@@ -424,3 +424,4 @@ def user_accesses_application(conn, uid):
         print(f"Database error: {e}")
         curs.close()
         return
+
