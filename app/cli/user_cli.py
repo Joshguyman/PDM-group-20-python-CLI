@@ -80,26 +80,14 @@ def command_handler(conn):
             if len(clist) > 1:
                 index = int(same_collection_name(conn, clist)) - 1
             remove_games_from_collection(conn, clist[index][1], session_uid, removed_games_list)
-        case "cd":
-            removed_games_list = []
-            removing_games = True
-            while removing_games:
-                cur_game = input("Enter the name of the game you with to remove: ")
-                removed_games_list.append(cur_game)
-                removing_games = False if (input("Done removing games?(Y/N): ").lower() == "y") else True
-            clist = get_collection_by_name(conn, session_uid, input("Enter the name of the collection to delete from: "))
-            index = 0
-            if len(clist) > 1:
-                index = int(same_collection_name(conn, clist)) - 1
-            remove_games_from_collection(conn, clist[index][1], session_uid, removed_games_list)
         case "sg":
             is_type_valid = False
             valid_types = ["title", "platform", "release date", "developer", "publisher", "genre", "price"]
-            while (not is_type_valid):
+            while not is_type_valid:
                 print("When searching for a Game, you can search using one of the following:")
                 print("Title, Platform, Release Date, Developer, Publisher, Price, Genre, Age Rating")
                 searched_type = input("What do to wish to search by: ").lower()
-                if (searched_type in valid_types):
+                if searched_type in valid_types:
                     is_type_valid = True
                 else:
                     print("Please enter a valid search type.")
