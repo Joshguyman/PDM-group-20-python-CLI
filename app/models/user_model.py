@@ -154,3 +154,60 @@ def update_last_access(conn, uid, access):
         curs.close()
         return
 
+def add_platform_to_user(conn, uid, pid):
+    if not conn:
+        raise psycopg.OperationalError("Database connection is not established")
+    curs = conn.cursor()
+    try:
+        curs.execute(
+            "INSERT INTO user_owns_platform (uid, pid) VALUES (%s, %s) RETURNING pid", (uid, pid,))
+        conn.commit()
+        pid = curs.fetchone()
+        curs.close()
+        return pid
+    except Exception as e:
+        print(e)
+        curs.close()
+        return None
+
+def get_platform_by_id(conn, pid):
+    if not conn:
+        raise psycopg.OperationalError("Database connection is not established")
+    curs = conn.cursor()
+    try:
+        curs.execute(
+            "SELECT name FROM platforms WHERE pid = %s", (pid,)
+        )
+        name = curs.fetchone()
+        curs.close()
+        return name
+    except Exception:
+        curs.close()
+        return None
+
+def check_user_platform(conn, uid, pid):
+    if not conn:
+        raise psycopg.OperationalError("Database connection is not established")
+    curs = conn.cursor()
+    try:
+        curs.execute("SELECT pid FROM user_owns_platform WHERE uid = %s AND pid = %s", (uid, pid))
+        pid = curs.fetchone()
+        curs.close()
+        return pid
+    except Exception:
+        curs.close()
+        return None
+
+def get_user_platforms(conn, uid):
+    if not conn:
+        raise psycopg.OperationalError("Database connection is not established")
+    curs = conn.cursor()
+    try:
+        curs.execute(
+            "SELECT pid FROM user_owns_platform WHERE uid = %s", (uid,))
+        pids = curs.fetchall()
+        curs.close()
+        return pids
+    except Exception:
+        curs.close()
+        return None

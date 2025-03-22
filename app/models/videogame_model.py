@@ -590,3 +590,21 @@ ORDER BY v.title""", (f"%{gname}%",))
         print(f"Database error: {e}")
         curs.close()
         return None
+
+def get_videogame_platforms(conn, vid):
+    if not conn:
+        raise psycopg.OperationalError("Database connection is not established")
+
+    curs = conn.cursor()
+    try:
+        curs.execute(
+            "SELECT pid FROM platform_contains_videogame WHERE vid = %s",
+            (vid,))
+        pids = curs.fetchall()
+        return pids  # No need to close cursor manually; it will be closed when the function exits
+    except Exception as e:
+        conn.rollback()  # Roll back the transaction to avoid leaving it in an error state
+        return None
+    finally:
+        curs.close()
+
