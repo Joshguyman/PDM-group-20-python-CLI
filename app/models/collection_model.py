@@ -238,8 +238,8 @@ def delete_collection(conn, uid, colid):
             print(f"Collection # {colid} successfully removed.")
             return
 
-        except Exception as e:
-            print(f"Deletion failed: {e}")
+        except Exception:
+            print("Unable to delete collection")
             conn.rollback()
             curs.close()
             return
@@ -247,5 +247,33 @@ def delete_collection(conn, uid, colid):
         print("Invalid Collection")
         curs.close()
         return
+
+def get_collection_by_name(conn, uid, name):
+    if not conn:
+        raise psycopg.OperationalError("Database connection is not established")
+
+    curs = conn.cursor()
+    try:
+        curs.execute("SELECT COUNT(*) FROM collection WHERE uid = %s", (uid,))
+        count = curs.fetchone()[0]
+        if count == 0:
+            print("No collections found for this user.")
+            return
+        else:
+            curs.execute("SELECT name, colid FROM collection WHERE name ILIKE %s AND uid = %s", (name, uid,))
+            result = curs.fetchall()
+            if result:
+                curs.close()
+                return result
+            else:
+                curs.close()
+                print("No collections with given name found for this user")
+                return
+
+    except Exception:
+        print("get_collection_by_name FAIL")
+        curs.close()
+        return
+
 
 
