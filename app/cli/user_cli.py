@@ -37,12 +37,11 @@ def help_message():
           "\tSearch for Game by Publisher (SPB)\n"
           "\tSearch for Game by Price (SPR)\n"
           "\tSearch for Game by Genre (SG)\n"
-          "\tRate a Game (GR)\n"
           "Users:\n"
           "\tSearch for User (SU)\n"
           "\tFollow User (UF)\n"
           "\tUnfollow User (UUF)\n"
-          "Rate a Game (R)\n"
+          "\tRate a Game (R)\n"
           "Quit program (Q)"
     )
 
@@ -157,7 +156,8 @@ def command_handler(conn):
             unfollowed_user = input("Who do you want to unfollow: ")
             unfollow_user(conn, session_uid, unfollowed_user)
         case "r":
-            print("TODO")
+            get_videogame_by_title(conn, input("Enter the game you wish to rate: "))
+            create_rating(conn, session_uid, )
         case "gr":
 
         case _:
