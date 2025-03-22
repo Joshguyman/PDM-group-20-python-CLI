@@ -18,6 +18,12 @@ def help_message():
           "\tCreate a Collection (CC)\n"
           "\tView Your Collections (CV)\n"
           "\tAdd Games to your Collection (CA)\n"
+          "\tDelete Games from your Collection (CD)\n"
+          "\tRename a Collention (CR)\n"
+          "Games:\n"
+          "\tPlay a specific Game (PG)\n"
+          "\tPlay a random Game from a Collection\n"
+          "\tSearch for Game by various ways (SG)\n"
           "\tDelete Games from your Collection (CDG)\n"
           "\tModify the name of one of your Collections (CM)\n"
           "\tDelete one of your Collections (CD)\n"
@@ -36,6 +42,7 @@ def help_message():
           "\tSearch for User (SU)\n"
           "\tFollow User (UF)\n"
           "\tUnfollow User (UUF)\n"
+          "Rate a Game (R)\n"
           "Quit program (Q)"
     )
 
@@ -53,6 +60,18 @@ def command_handler(conn):
         case "ca":
             added_games_list = []
             adding_games = True
+            while (adding_games):
+                cur_game = input("Enter the title of the game you with to add: ")
+                added_games_list.append(cur_game)
+                adding_games = False if (input("Done adding games?(Y/N): ").lower() == "y") else True
+            # TODO
+        case "cd":
+            removed_games_list = []
+            removing_games = True
+            while (removing_games):
+                cur_game = input("Enter the title of the game you with to remove: ")
+                removed_games_list.append(cur_game)
+                adding_games = False if (input("Done removing games?(Y/N): ").lower() == "y") else True
             while adding_games:
                 cur_game = input("Enter the name of the game you wish to add: ")
                 added_games_list.append(cur_game)
@@ -93,8 +112,36 @@ def command_handler(conn):
             searched_price = input("Enter price: ")
             # TODO: Call function once it is implemented
         case "sg":
-            searched_genre = input("Enter genre: ")
-            # TODO: Call function once it is implemented
+            is_type_valid = False
+            valid_types = ["title", "platform", "release date", "developer", "publisher", "genre", "price"]
+            while (not is_type_valid):
+                print("When searching for a Game, you can search using one of the following:")
+                print("Title, Platform, Release Date, Developer, Publisher, Price, Genre, Age Rating")
+                searched_type = input("What do to wish to search by: ").lower()
+                if (searched_type in valid_types):
+                    is_type_valid = True
+                else:
+                    print("Please enter a valid search type.")
+            
+            searched_input = input(f"Enter desired {searched_type}: ")
+            is_default_order = True if (input("Would you like default sorting?(Y/N): ").lower() == "y") else False
+            if (is_default_order is True):
+                order_input = ""
+                is_ascending = True
+            else:
+                valid_order_types = ["title", "price", "genre", "release-date"]
+                is_order_valid = False
+                is_ascending = True
+                while (not is_order_valid):
+                    print("You are able to sort using one of the following:")
+                    print("Title, Price, Genre, release-date")
+                    order_input = input("What do you wish to order by: ").lower()
+                    if (order_input in valid_order_types):
+                        is_order_valid = True
+                    else:
+                        print("Please enter a valid order type.")
+                is_ascending = False if (input("Sort by Ascending or Descending?(A/D): ").lower() == "d") else True
+            search_videogame(conn, searched_input, searched_type, order_input, not (is_ascending))
         case "q":
             session_live = False
         case "su":
@@ -107,6 +154,9 @@ def command_handler(conn):
             followed_user = input("Who do you want to follow: ")
             follow_user(conn, session_uid, followed_user)
         case "uuf":
+            unfollowed_user = input("Who do you want to unfollow: ")
+            unfollow_user(conn, session_uid, unfollowed_user)
+        case "r":
             print("TODO")
         case "gr":
 
