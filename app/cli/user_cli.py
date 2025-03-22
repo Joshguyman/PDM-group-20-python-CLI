@@ -112,6 +112,12 @@ def command_handler(conn):
             search_videogame(conn, searched_input, searched_type, order_input, not (is_ascending))
         case "pg":
             session_time = play_videogame(conn, input("Enter the game you wish to play: "), session_uid)[1]
+        case "prg":
+            clist = get_collection_by_name(conn, session_uid, input("Enter the name of the collection to play a Game from: "))
+            index = 0
+            if len(clist) > 1:
+                index = int(same_collection_name(conn, clist)) - 1
+            session_time = play_random_videogame(conn,clist[index][1], session_uid)[1]
         case "ps":
             name = input("Enter the game you wish to stop playing: ")
             vid = search_videogame_title(conn, name)[0]
