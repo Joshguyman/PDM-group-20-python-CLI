@@ -125,3 +125,32 @@ def add_collection(conn, colid, name, uid):
         print(f"Database error: {e}")
         curs.close()
         return None
+
+
+"""
+update_last_access: changes corresponding lastaccess value in users table
+@:param conn -> connection
+@:param uid -> id of user accessing
+@:param access -> access time by user
+@:return -> none
+"""
+
+
+def update_last_access(conn, uid, access):
+    if not conn:
+        raise psycopg.OperationalError("Database connection is not established")
+    curs = conn.cursor()
+    try:
+        curs.execute(
+            "UPDATE users SET lastaccess = %s WHERE uid = %s", (access, uid,))
+        curs.execute(
+            "INSERT INTO user_platform_access (uid, timeaccessed) VALUES (%s, %s)", (uid, access,))
+        conn.commit()
+        curs.close()
+        return
+
+    except psycopg.Error as e:
+        print(f"Database error: {e}")
+        curs.close()
+        return
+
