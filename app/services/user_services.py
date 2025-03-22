@@ -79,9 +79,18 @@ def add_games_to_collection(conn, colid, uid, games: list):
                 print(f"No such game \"{game}\"")
                 continue
             vid = vid[0]
+
             if check_game_in_collection(conn, colid, vid):
                 print(f"\"{game}\" is already in collection \"{collection}\"")
                 continue
+            game_platforms = get_videogame_platforms(conn, vid)
+            has = False
+            if(game_platforms):
+                for pid in game_platforms:
+                    if check_user_platform(conn, uid, pid[0]):
+                        has = True
+                if not has:
+                    print(f"WARNING: You do not own a Platform that \"{game}\" is on")
             add_game(conn, colid, vid)
             print(f"Successfully added \"{game}\" to collection \"{collection}\"")
         contents = get_games_in_collection(conn, colid)
@@ -395,6 +404,16 @@ def get_user_collections(conn, uid):
     format_collection_result(collections)
     return
 
+def add_platform(conn, uid, pid):
+    pname = get_platform_by_id(conn, pid)
+    if not check_user_platform(conn, uid, pid):
+        if add_platform(conn, uid, pid):
+            print(f"You now own {pname} platform")
+            return
+        print("Error adding platform")
+        return
+    print(f"You already own the \"{pname}\"")
+    return
 """
 wrapper functions ¯\_(ツ)_/¯
 """
