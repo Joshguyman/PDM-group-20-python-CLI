@@ -21,11 +21,9 @@ def help_message():
           "\tAdd Games to your Collection (CA)\n"
           "\tDelete Games from your Collection (CD)\n"
           "\tRename a Collection (CR)\n"
+          "\tDelete one of your Collections (CRC)\n"
           "Games:\n"
           "\tSearch for Game by various ways (SG)\n"
-          "\tDelete Games from your Collection (CDG)\n"
-          "\tModify the name of one of your Collections (CM)\n"
-          "\tDelete one of your Collections (CD)\n"
           "\tPlay a specific Game (PG)\n"
           "\tPlay a random Game from a Collection (PRG)\n"
           "\tStop playing a running Game(PS)\n"
@@ -80,6 +78,7 @@ def command_handler(conn):
             if len(clist) > 1:
                 index = int(same_collection_name(conn, clist)) - 1
             remove_games_from_collection(conn, clist[index][1], session_uid, removed_games_list)
+
         case "sg":
             is_type_valid = False
             valid_types = ["title", "platform", "release date", "developer", "publisher", "genre", "price"]
@@ -126,14 +125,21 @@ def command_handler(conn):
             search_input = input("Search for: ")
             search_user(conn, search_input, chosen_type)
         case "uf":
-            followed_user = input("Who do you want to follow: ")
+            followed_user = input("Who do you want to follow?: ")
             follow_user(conn, session_uid, followed_user)
         case "uuf":
-            unfollowed_user = input("Who do you want to unfollow: ")
+            unfollowed_user = input("Who do you want to unfollow?: ")
             unfollow_user(conn, session_uid, unfollowed_user)
         case "r":
             vid = search_videogame_title(conn, input("Enter the game you wish to rate: "))[0]
             create_rating(conn, session_uid, vid, input("Enter your score: "))
+        case "crc":
+            name = input("Enter the collection you wish to delete: ")
+            clist = get_collection_by_name(conn, session_uid, name)
+            index = 0
+            if len(clist) > 1:
+                index = int(same_collection_name(conn, clist)) - 1
+            delete_collection(conn, session_uid, clist[index][1])
         case _:
             print("Please enter a valid command, input H for help.")
             
