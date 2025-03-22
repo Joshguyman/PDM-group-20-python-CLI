@@ -2,7 +2,6 @@ import psycopg
 
 from app.models.videogame_model import get_videogame_by_id
 
-
 def rate_videogame(conn, uid, vid, score):
     """Insert or update a user's rating for a video game."""
     if not conn:
