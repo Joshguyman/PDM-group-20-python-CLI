@@ -414,6 +414,27 @@ def add_platform(conn, uid, pid):
         return
     print(f"You already own the \"{pname}\"")
     return
+
+def user_accesses_application(conn, uid):
+    if not conn:
+        raise psycopg.OperationalError("Database connection is not established")
+
+    access = datetime.now()
+    curs = conn.cursor()
+    try:
+        curs.execute(
+            "INSERT INTO user_platform_access (uid, timeaccessed) VALUES (%s, %s)", (uid, access,))
+        conn.commit()
+        curs.close()
+        update_last_access(conn, uid, access)
+        return
+
+    except psycopg.Error as e:
+        print(f"Database error: {e}")
+        curs.close()
+        return
+
+
 """
 wrapper functions ¯\_(ツ)_/¯
 """
