@@ -24,6 +24,7 @@ def search_videogame_title(conn, title):
 
     curs = conn.cursor()
     try:
+        print("Executing search title")
         curs.execute(
             """SELECT v.vid FROM videogame v WHERE v.title ILIKE %s""", (title,)
         )
@@ -69,7 +70,7 @@ FROM videogame v
     JOIN contributor ps ON ps.conid = cpv.conid
     JOIN contributor ds ON ds.conid = cdv.conid
 WHERE v.vid = %s
-GROUP BY v.title, v.esrbrating
+GROUP BY v.title, v.esrbrating, pcv.price
 ORDER BY v.title""", (vid,)
         )
         print("executed statement")
