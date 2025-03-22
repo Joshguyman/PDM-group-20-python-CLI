@@ -1,10 +1,12 @@
 from app.models.collection_model import *
 from app.models.user_model import *
 from app.models.videogame_model import *
-from app.utils.format import format_videogame_result
+from app.utils.format import format_videogame_result, format_collection_result
 from datetime import datetime
 from app.models.collection_model import *
 import random
+
+from app.utils.rating import rate_videogame
 
 
 def sign_in(conn, username, password):
@@ -17,6 +19,7 @@ def sign_in(conn, username, password):
         print(f"No User with password \"{password}\"")
         return None
     print("Signed in as:", result[1])
+    update_last_access(conn, result[0], datetime.now())
     return result[0]
 
 
@@ -126,9 +129,20 @@ search_videogame: search videogame by title, returns vid, helper function for pl
 """
 
 
-def search_videogame(conn, val, searchtype):
+def search_videogame(conn, val, searchtype, sorttype, desc: bool):
     result = []
     st = str
+    sot = 0
+
+    match sorttype:
+        case "price":
+            sot = 8
+        case "genre":
+            sot = 6
+        case "release-date":
+            sot = 7
+        case _:
+            sot = 0
     match searchtype:
         case "title":
             result = get_videogame_by_title(conn, val)
@@ -153,7 +167,7 @@ def search_videogame(conn, val, searchtype):
             st = "Price"
         case _:
             print("Unrecognized search type")
-    format_videogame_result(result, val, st)
+    format_videogame_result(result, val, st, sot, desc)
 
 
 """
@@ -372,38 +386,14 @@ def search_user(conn, val, searchtype):
             return
 
 
-"""
-update_last_access: changes corresponding lastaccess value in users table
-@:param conn -> connection
-@:param uid -> id of user accessing
-@:param access -> access time by user
-@:return -> none
-"""
-
-
-def update_last_access(conn, uid, access):
-    if not conn:
-        raise psycopg.OperationalError("Database connection is not established")
-    curs = conn.cursor()
-    try:
-        curs.execute(
-            "UPDATE users SET lastaccess = %s WHERE uid = %s", (access, uid,))
-        conn.commit()
-        curs.close()
+def get_user_collections(conn, uid):
+    collections = get_collection_details(conn, uid)
+    if not collections:
+        print("You currently have no collections.")
         return
-
-    except psycopg.Error as e:
-        print(f"Database error: {e}")
-        curs.close()
-        return
-
-
-"""
-user_accesses_application: inserts access time to user_platform_access, calls update_last_access
-@:param conn -> connection
-@:param uid -> id of user accessing
-@:return -> none
-"""
+    print(f"You currently have {len(collections)} collection(s):")
+    format_collection_result(collections)
+    return
 
 
 def user_accesses_application(conn, uid):
@@ -425,3 +415,10 @@ def user_accesses_application(conn, uid):
         curs.close()
         return
 
+"""
+wrapper functions ¯\_(ツ)_/¯
+"""
+def create_rating(conn, uid, vid, score):
+    rate_videogame(conn, uid, vid, score)
+def remove_rating(conn, uid, vid):
+    remove_rating(conn, uid, vid)

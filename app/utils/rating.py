@@ -5,8 +5,8 @@ def rate_videogame(conn, uid, vid, score):
     if not conn:
         raise psycopg.OperationalError("Database connection is not established")
     
-    if score < 0 or score > 10:
-        print("Error: Rating must be between 0 and 10.")
+    if score < 0 or score > 5:
+        print("Error: Rating must be between 0 and 5 stars.")
         return
 
     curs = conn.cursor()
