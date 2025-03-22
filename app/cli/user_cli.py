@@ -2,12 +2,12 @@
 from app.services.user_services import *
 from app.models.videogame_model import *
 import getpass
-
+from datetime import datetime
 # Session variables
 session_username: str
 session_password: str
 session_uid: str
-
+session_time: datetime
 session_live: bool = True
 credentials_loaded: bool = False
 
@@ -39,7 +39,7 @@ def help_message():
 
 def command_handler(conn):
     global session_live
-
+    global session_time
     user_input = input("Enter your command: ").lower()
     match user_input:
         case "h":
@@ -51,20 +51,8 @@ def command_handler(conn):
         case "ca":
             added_games_list = []
             adding_games = True
-            while (adding_games):
-                cur_game = input("Enter the title of the game you with to add: ")
-                added_games_list.append(cur_game)
-                adding_games = False if (input("Done adding games?(Y/N): ").lower() == "y") else True
-            # TODO
-        case "cd":
-            removed_games_list = []
-            removing_games = True
-            while (removing_games):
-                cur_game = input("Enter the title of the game you with to remove: ")
-                removed_games_list.append(cur_game)
-                adding_games = False if (input("Done removing games?(Y/N): ").lower() == "y") else True
             while adding_games:
-                cur_game = input("Enter the name of the game you wish to add: ")
+                cur_game = input("Enter the title of the game you with to add: ")
                 added_games_list.append(cur_game)
                 adding_games = False if (input("Done adding games?(Y/N): ").lower() == "y") else True
             clist = get_collection_by_name(conn, session_uid, input("Enter the name of the collection to add to: "))
@@ -72,6 +60,18 @@ def command_handler(conn):
             if len(clist) > 1:
                 index = int(same_collection_name(conn, clist)) - 1
             add_games_to_collection(conn, clist[index][1], session_uid, added_games_list)
+        case "cd":
+            removed_games_list = []
+            removing_games = True
+            while removing_games:
+                cur_game = input("Enter the title of the game you with to remove: ")
+                removed_games_list.append(cur_game)
+                removing_games = False if (input("Done removing games?(Y/N): ").lower() == "y") else True
+            clist = get_collection_by_name(conn, session_uid, input("Enter the name of the collection to add to: "))
+            index = 0
+            if len(clist) > 1:
+                index = int(same_collection_name(conn, clist)) - 1
+            remove_games_from_collection(conn, clist[index][1], session_uid, removed_games_list)
         case "cd":
             removed_games_list = []
             removing_games = True
@@ -116,9 +116,11 @@ def command_handler(conn):
                 is_ascending = False if (input("Sort by Ascending or Descending?(A/D): ").lower() == "d") else True
             search_videogame(conn, searched_input, searched_type, order_input, not (is_ascending))
         case "pg":
-            play_videogame(conn, input("Enter the game you wish to play"), session_uid)
+            session_time = play_videogame(conn, input("Enter the game you wish to play: "), session_uid)[1]
         case "ps":
-            stop_playing_videogame(conn, input("Enter the game you wish to stop playing"), )
+            name = input("Enter the game you wish to stop playing: ")
+            vid = search_videogame_title(conn, name)[0]
+            stop_playing_videogame(conn, session_uid, name, vid, session_time)
         case "q":
             session_live = False
         case "su":

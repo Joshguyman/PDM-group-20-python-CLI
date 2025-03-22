@@ -41,7 +41,7 @@ def create_account(conn, username, password, first_name, last_name, email):
         return None
 
     print("Successfully created account")
-    return result[0]
+    return result
 
 
 """
@@ -227,7 +227,7 @@ def stop_playing_videogame(conn, uid, name, vid, start_time):
     curs = conn.cursor()
     try:
         curs.execute(
-            "SELECT uid FROM user_plays_videogame WHERE uid = %s AND vid =%s AND durationplayed = '00:00' AND timestarted = %s",
+            "SELECT uid FROM user_plays_videogame WHERE uid = %s AND vid = %s AND durationplayed = '00:00' AND timestarted = %s",
             (uid, vid, start_time,))
         test = curs.fetchall()
         if start_time and test:
@@ -239,7 +239,7 @@ def stop_playing_videogame(conn, uid, name, vid, start_time):
             elapsed_time = f"{int(hours):02d}:{int(minutes):02d}"
             print("Played", name, "for", elapsed_time, ".")
             curs.execute(
-                "UPDATE user_plays_videogame SET durationplayed = %s WHERE uid = %s AND vid =%s AND durationplayed = '00:00'",
+                "UPDATE user_plays_videogame SET durationplayed = %s WHERE uid = %s AND vid = %s AND durationplayed = '00:00'",
                 (elapsed_time, uid, vid,)
             )
             conn.commit()
