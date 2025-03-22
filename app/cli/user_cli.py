@@ -23,15 +23,7 @@ def help_message():
           "Games:\n"
           "\tPlay a specific Game (PG)\n"
           "\tPlay a random Game from a Collection\n"
-          "\tSearch for Game by Title (ST)\n"
-          "\tSearch for Game by Platform (SPL)\n"
-          "\tSearch for Game by Release Date (SR)\n"
-          "\tSearch for Game by Developer (SD)\n"
-          "\tSearch for Game by Publisher (SPB)\n"
-          "\tSearch for Game by Price (SPR)\n"
-          "\tSearch for Game by Genre (SG)\n"
-          "\tSearch for Game by Age Rating (SA)\n"
-          "\tSearch for game by Rating (SRA)\n"
+          "\tSearch for Game by various ways (SG)\n"
           "Users:\n"
           "\tSearch for User (SU)\n"
           "\tFollow User (UF)\n"
@@ -83,7 +75,8 @@ def command_handler(conn):
             searched_input = input(f"Enter desired {searched_type}: ")
             is_default_order = True if (input("Would you like default sorting?(Y/N): ").lower() == "y") else False
             if (is_default_order is True):
-                print("TEST defualt order true")
+                order_input = ""
+                is_ascending = True
             else:
                 valid_order_types = ["title", "price", "genre", "release-date"]
                 is_order_valid = False
@@ -98,35 +91,6 @@ def command_handler(conn):
                         print("Please enter a valid order type.")
                 is_ascending = False if (input("Sort by Ascending or Descending?(A/D): ").lower() == "d") else True
             search_videogame(conn, searched_input, searched_type, order_input, not (is_ascending))
-
-        # case "sn":
-        #     searched_game = input("Enter game name: ")
-        #     search_videogame(conn, searched_game, "title")
-        #     # TODO: Call function once it is implemented
-        # case "spl":
-        #     searched_platform = input("Enter platform name: ")
-        #     search_videogame(conn, searched_platform, "platform")
-        #     # TODO: Call function once it is implemented
-        # case "sr":
-        #     searched_release_date = input("Enter release date: ")
-        #     search_videogame(conn, searched_release_date, "release date")
-        #     # TODO: Call function once it is implemented
-        # case "sd":
-        #     searched_developer = input("Enter developer name: ")
-        #     search_videogame(conn, searched_developer, "developer")
-        #     # TODO: Call function once it is implemented
-        # case "spb":
-        #     searched_publisher = input("Enter publisher name: ")
-        #     search_videogame(conn, searched_publisher, "publisher")
-        #     # TODO: Call function once it is implemented
-        # case "spr":
-        #     searched_price = input("Enter price: ")
-        #     search_videogame(conn, searched_price, "price")
-        #     # TODO: Call function once it is implemented
-        # case "sg":
-        #     searched_genre = input("Enter genre: ")
-        #     search_videogame(conn, searched_genre, "genre")
-        #     # TODO: Call function once it is implemented
         case "q":
             session_live = False
         case "su":
