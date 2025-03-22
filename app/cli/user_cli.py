@@ -20,7 +20,7 @@ def help_message():
           "\tView Your Collections (CV)\n"
           "\tAdd Games to your Collection (CA)\n"
           "\tDelete Games from your Collection (CD)\n"
-          "\tRename a Collention (CR)\n"
+          "\tRename a Collection (CR)\n"
           "Games:\n"
           "\tSearch for Game by various ways (SG)\n"
           "\tDelete Games from your Collection (CDG)\n"
@@ -44,10 +44,18 @@ def command_handler(conn):
     match user_input:
         case "h":
             help_message()
+        case "cr":
+            name = input("Enter the collection you wish to modify: ")
+            clist = get_collection_by_name(conn, session_uid, name)
+            index = 0
+            if len(clist) > 1:
+                index = int(same_collection_name(conn, clist)) - 1
+
+            modify_collection_name(conn, session_uid, clist[index][1], input("Enter the name you wish to change it to: "))
         case "cc":
             new_collection(conn, input("Enter a name for your new collection: "), session_uid)
         case "cv":
-            get_collection_details(conn, session_uid)
+            get_user_collections(conn, session_uid)
         case "ca":
             added_games_list = []
             adding_games = True
