@@ -99,6 +99,7 @@ def add_game(conn, colid, vid):
         conn.commit()
         return
     except psycopg.Error as e:
+        print(e)
         curs.close()
         return
 
