@@ -215,3 +215,52 @@ def check_game_in_collection(conn, colid, vid) -> bool:
         curs.close()
         return False
 
+
+def change_collection_name(conn, uid, colid, name):
+    if not conn:
+        raise psycopg.OperationalError("Database connection is not established")
+    curs = conn.cursor()
+    if check_collection_owner(conn, uid, colid):
+        try:
+            curs.execute(
+                "UPDATE collection SET name = %s WHERE colid = %s", (name, colid)
+            )
+            conn.commit()
+            curs.close()
+            return
+        except Exception:
+            curs.close()
+            return
+    else:
+        curs.close()
+        print("Failed to rename.")
+        return
+
+def delete_collection(conn, uid, colid):
+    if not conn:
+        raise psycopg.OperationalError("Database connection is not established")
+
+    curs = conn.cursor()
+    if check_collection_owner(conn, uid, colid):
+        try:
+            curs.execute(
+                "DELETE FROM user_makes_collection WHERE colid = %s", (colid,))
+            conn.commit()
+            curs.execute(
+                "DELETE FROM collection WHERE colid = %s", (colid,))
+            conn.commit()
+            curs.close()
+            print(f"Collection # {colid} successfully removed.")
+            return
+
+        except Exception as e:
+            print(f"Deletion failed: {e}")
+            conn.rollback()
+            curs.close()
+            return
+    else:
+        print("Invalid Collection")
+        curs.close()
+        return
+
+

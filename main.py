@@ -1,7 +1,7 @@
 import getpass
 from app.cli.user_cli import *
 from app.models.db import connect, close_connection
-from app.models.collection_model import get_collection_details
+from app.models.collection_model import *
 from sshtunnel import SSHTunnelForwarder
 import time
 
@@ -24,7 +24,6 @@ def main():
 
             # use this for testing currently
             session_loop(conn)
-            
             # Get user ID
 
             close_connection(conn)
