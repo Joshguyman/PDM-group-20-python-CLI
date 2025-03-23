@@ -1,3 +1,17 @@
+"""
+This Module provides functionality to establish an SSH tunnel, connect to a remote
+database through the tunnel and execute a session loop for user interaction
+with the database.
+
+Authors:
+Team 20
+    Y. Arden
+    S. Le
+    J. Espejo
+    J. Elliot
+    C. Clerigo
+"""
+
 import getpass
 from app.cli.user_cli import *
 from app.models.db import connect, close_connection
@@ -7,6 +21,10 @@ import time
 
 
 def main():
+    """
+    Main function to estalish an SSH tunnel, connect to a remote database, and initiate a session
+    loop for user interaction.
+    """
     username = input("Username: ")
     password = getpass.getpass("Password: ")
 
