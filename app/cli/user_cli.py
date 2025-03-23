@@ -81,10 +81,10 @@ def command_handler(conn):
 
         case "sg":
             is_type_valid = False
-            valid_types = ["title", "platform", "release date", "developer", "publisher", "genre", "price"]
+            valid_types = ["title", "platform", "release date", "developer", "publisher", "genre", "price", "esrbrating"]
             while not is_type_valid:
                 print("When searching for a Game, you can search using one of the following:")
-                print("Title, Platform, Release Date, Developer, Publisher, Price, Genre, Age Rating")
+                print("Title, Platform, Release Date, Developer, Publisher, Price, Genre, ESRBRating")
                 searched_type = input("What do to wish to search by: ").lower()
                 if searched_type in valid_types:
                     is_type_valid = True

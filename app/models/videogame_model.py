@@ -272,6 +272,52 @@ ORDER BY v.title""", (re_date,))
 
 
 """
+get_videogame_by_esrb_rating - gets videogame with given esrb rating
+@param conn
+@param esrb_rating
+@return videogames with matching esrb rating
+"""
+def get_videogame_by_esrb_rating(conn, esrbrating):
+    if not conn:
+        raise psycopg.OperationalError("Database connection is not established")
+    curs = conn.cursor()
+    try:
+        curs.execute("""SELECT
+    v.title,
+    STRING_AGG(DISTINCT p.name, ', ') AS platforms,
+    STRING_AGG(DISTINCT ps.name, ', ') AS publishers,
+    STRING_AGG(DISTINCT ds.name, ', ') AS developers,
+    STRING_AGG(DISTINCT upv.durationplayed::TEXT, ', ') AS playtimes,
+    STRING_AGG(urv.score::TEXT, ', ') AS ratings,
+    STRING_AGG(DISTINCT g.name, ', ') AS genres,
+    v.esrbrating,
+    MAX(pcv.price)
+FROM videogame v
+    JOIN contributor_develops_videogame cdv ON v.vid = cdv.vid
+    JOIN contributor_publishes_videogame cpv ON v.vid = cpv.vid
+    LEFT JOIN user_plays_videogame upv ON v.vid = upv.vid
+    LEFT JOIN user_rates_videogame urv ON v.vid = urv.vid
+    JOIN platform_contains_videogame pcv ON v.vid = pcv.vid
+    JOIN platform p ON p.pid = pcv.pid
+    JOIN videogame_genre vg ON vg.vid = v.vid
+    JOIN genre g ON g.gid = vg.gid
+    JOIN contributor ps ON ps.conid = cpv.conid
+    JOIN contributor ds ON ds.conid = cdv.conid
+WHERE v.esrbrating = %s
+GROUP BY v.title, v.esrbrating
+ORDER BY v.title""", (esrbrating,))
+        print("Executed Statement")
+        user = curs.fetchall()
+        curs.close()
+        return user
+
+    except psycopg.Error as e:
+        print(f"Database error: {e}")
+        curs.close()
+        return None
+
+
+"""
 get_videogame_by_dev_id - gets videogame with given developer id
 @param conn
 @param conid

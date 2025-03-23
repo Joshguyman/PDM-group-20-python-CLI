@@ -174,6 +174,9 @@ def search_videogame(conn, val, searchtype, sorttype, desc: bool):
         case "price":
             result = get_videogame_by_price(conn, val)
             st = "Price"
+        case "esrbrating":
+            result = get_videogame_by_esrb_rating(conn, val)
+            st = "ESRBRating"
         case _:
             print("Unrecognized search type")
     format_videogame_result(result, val, st, sot, desc)
