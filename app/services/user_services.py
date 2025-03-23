@@ -437,7 +437,7 @@ def user_accesses_application(conn, uid):
 def modify_collection_name(conn, uid, colid, name):
     if not check_collection_owner(conn, uid, colid):
         print("You do not own this collection")
-    oldname = get_collection_by_id(conn, colid)[1]
+    oldname = get_collection_by_id(conn, colid)
     change_collection_name(conn, uid, colid, name)
     print(f"Successfully renamed \"{oldname}\" Collection to \"{name}\" Collection")
 

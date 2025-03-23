@@ -70,10 +70,10 @@ def command_handler(conn):
             removed_games_list = []
             removing_games = True
             while removing_games:
-                cur_game = input("Enter the title of the game you with to remove: ")
+                cur_game = input("Enter the title of the game you wish to remove: ")
                 removed_games_list.append(cur_game)
                 removing_games = False if (input("Done removing games?(Y/N): ").lower() == "y") else True
-            clist = get_collection_by_name(conn, session_uid, input("Enter the name of the collection to add to: "))
+            clist = get_collection_by_name(conn, session_uid, input("Enter the name of the collection to remove from: "))
             index = 0
             if len(clist) > 1:
                 index = int(same_collection_name(conn, clist)) - 1
