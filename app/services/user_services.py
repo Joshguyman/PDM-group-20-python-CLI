@@ -305,8 +305,9 @@ follow_user: follow a user, updates the corresponding db table for the current u
 def follow_user(conn, follower, username):
     if not conn:
         raise psycopg.OperationalError("Database connection is not established")
-
+    print(username)
     result = get_user_by_username(conn, username)
+    print(result)
     if result and get_user_by_id(conn, follower):
         curs = conn.cursor()
         followee = result[0]
