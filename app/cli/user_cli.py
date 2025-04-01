@@ -35,6 +35,7 @@ def help_message():
           "\tUnfollow User (UUF)\n"
           "\tView number of Users followed (NFD)\n"
           "\tView number of followers (NFS)\n"
+          "\tView number of Collections a User has (VNC)\n"
           "Quit program (Q)"
     )
 
@@ -167,6 +168,11 @@ def command_handler(conn):
             if len(clist) > 1:
                 index = int(same_collection_name(conn, clist)) - 1
             delete_collection(conn, session_uid, clist[index][1])
+        case "vnc":
+            name = input("Enter the user you wish to check: ")
+            uid = get_user_by_username(conn, name)[0]
+            count = user_collection_count(conn, uid)
+            print(name, "has", count, "collections.")
         case _:
             print("Please enter a valid command, input H for help.")
             
