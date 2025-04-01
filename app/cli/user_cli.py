@@ -42,6 +42,7 @@ def command_handler(conn):
     match user_input:
         case "h":
             help_message()
+        # COLLECTIONS 
         case "cr":
             name = input("Enter the collection you wish to modify: ")
             clist = get_collection_by_name(conn, session_uid, name)
@@ -79,6 +80,7 @@ def command_handler(conn):
                 index = int(same_collection_name(conn, clist)) - 1
             remove_games_from_collection(conn, clist[index][1], session_uid, removed_games_list)
 
+        # VIDEO GAMES 
         case "sg":
             is_type_valid = False
             valid_types = ["title", "platform", "release date", "developer", "publisher", "genre", "price"]
@@ -124,6 +126,7 @@ def command_handler(conn):
             stop_playing_videogame(conn, session_uid, name, vid, session_time)
         case "q":
             session_live = False
+        # USER 
         case "su":
             chosen_type = 1
             type_input = input("Search for user by username or email?(U/E): ").lower()
@@ -139,6 +142,7 @@ def command_handler(conn):
         case "r":
             vid = search_videogame_title(conn, input("Enter the game you wish to rate: "))[0]
             create_rating(conn, session_uid, vid, input("Enter your score: "))
+        # DELETE COLLECTION 
         case "crc":
             name = input("Enter the collection you wish to delete: ")
             clist = get_collection_by_name(conn, session_uid, name)
