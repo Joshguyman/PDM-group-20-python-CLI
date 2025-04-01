@@ -32,6 +32,7 @@ def help_message():
           "\tSearch for User (SU)\n"
           "\tFollow User (UF)\n"
           "\tUnfollow User (UUF)\n"
+          "\Top 10 Video Games by various ways (T10)\n"
           "Quit program (Q)"
     )
 
@@ -142,6 +143,9 @@ def command_handler(conn):
         case "r":
             vid = search_videogame_title(conn, input("Enter the game you wish to rate: "))[0]
             create_rating(conn, session_uid, vid, input("Enter your score: "))
+        case "t10":
+            criteria = input("View top 10 by RATING, PLAYTIME, or BOTH? (R/P/B): ").lower()
+            get_top_10_videogames(conn, criteria)            
         # DELETE COLLECTION 
         case "crc":
             name = input("Enter the collection you wish to delete: ")
