@@ -28,7 +28,7 @@ def help_message():
           "\tPlay a random Game from a Collection (PRG)\n"
           "\tStop playing a running Game (PS)\n"
           "\tRate a Game (R)\n"
-          "\tTop 20 Video Games in the last 90 days\n (T20)"
+          "\tTop 20 Video Games in the last 90 days (T20)\n"
           "Users:\n"
           "\tSearch for User (SU)\n"
           "\tFollow User (UF)\n"

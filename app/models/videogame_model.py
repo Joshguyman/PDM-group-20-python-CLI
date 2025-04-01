@@ -618,7 +618,7 @@ def get_top_20_popular_games(conn):
         SELECT v.vid, v.title, COUNT(DISTINCT upv.uid) AS active_users
         FROM videogame v
         JOIN user_plays_videogame upv ON v.vid = upv.vid
-        WHERE upv.played_at >= CURRENT_DATE - INTERVAL '90 days'
+        WHERE upv.timestarted >= CURRENT_DATE - INTERVAL '90 days'
         GROUP BY v.vid, v.title
         ORDER BY active_users DESC
         LIMIT 20;
