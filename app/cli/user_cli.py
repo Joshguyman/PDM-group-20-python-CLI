@@ -126,6 +126,8 @@ def command_handler(conn):
             name = input("Enter the game you wish to stop playing: ")
             vid = search_videogame_title(conn, name)[0]
             stop_playing_videogame(conn, session_uid, name, vid, session_time)
+        case "t20":
+            get_top_20_popular_games(conn)
         case "q":
             session_live = False
         # USER 
