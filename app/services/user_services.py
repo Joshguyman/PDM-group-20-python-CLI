@@ -441,6 +441,55 @@ def modify_collection_name(conn, uid, colid, name):
     change_collection_name(conn, uid, colid, name)
     print(f"Successfully renamed \"{oldname}\" Collection to \"{name}\" Collection")
 
+def get_top_10_videogames(conn, criterion='rating'):
+    """Retrieve the top 10 video games based on the chosen criterion"""
+    if not conn:
+        raise psycopg.OperationalError("Database connection is not established")
+    
+    criteria = {'rating', 'playtime', 'combined'}
+    if criterion not in criteria:
+        raise ValueError(f"Invalid criterion. Choose from {criteria}")
+    
+    query = ""
+    if criterion == 'rating':
+        query = """
+            SELECT v.vid, v.title, COALESCE(AVG(urv.score), 0) AS avg_rating
+            FROM videogame v
+            LEFT JOIN user_rates_videogame urv ON v.vid = urv.vid
+            GROUP BY v.vid, v.title
+            ORDER BY avg_rating DESC
+            LIMIT 10;
+        """
+    elif criterion == 'playtime':
+        query = """
+            SELECT v.vid, v.title, COALESCE(SUM(up.playtime), 0) AS total_playtime
+            FROM videogame v
+            LEFT JOIN user_playtime up ON v.vid = up.vid
+            GROUP BY v.vid, v.title
+            ORDER BY total_playtime DESC
+            LIMIT 10;
+        """
+    elif criterion == 'combined':
+        query = """
+            SELECT v.vid, v.title, 
+                   COALESCE(AVG(urv.score), 0) AS avg_rating, 
+                   COALESCE(SUM(up.playtime), 0) AS total_playtime,
+                   (COALESCE(AVG(urv.score), 0) * 0.7 + COALESCE(SUM(up.playtime), 0) * 0.3) AS combined_score
+            FROM videogame v
+            LEFT JOIN user_rates_videogame urv ON v.vid = urv.vid
+            LEFT JOIN user_playtime up ON v.vid = up.vid
+            GROUP BY v.vid, v.title
+            ORDER BY combined_score DESC
+            LIMIT 10;
+        """
+    
+    with conn.cursor() as curs:
+        try:
+            curs.execute(query)
+            return curs.fetchall()
+        except psycopg.Error as e:
+            print(f"Database error: {e}")
+            return []
 
 """
 wrapper functions ¯\_(ツ)_/¯
