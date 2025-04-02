@@ -2,6 +2,7 @@ from app.models.collection_model import *
 from app.models.user_model import *
 from app.models.videogame_model import *
 from app.utils.format import format_videogame_result, format_collection_result
+from app.utils.hashing_util import *
 from datetime import datetime
 from app.models.collection_model import *
 import random
@@ -15,7 +16,7 @@ def sign_in(conn, username, password):
         print("User not found")
         return None
     tmp = get_user_password(conn, result[0])[0]
-    if password != tmp:
+    if not (verify_password(password, tmp)) :
         print(f"No User with password \"{password}\"")
         return None
     print("Signed in as:", result[1])
@@ -35,11 +36,11 @@ create_account: create an account for a user
 
 
 def create_account(conn, username, password, first_name, last_name, email):
-    result = create_user(conn, username, password, first_name, last_name, email)
+    hashed_password = hash_password(password)
+    result = create_user(conn, username, hashed_password, first_name, last_name, email)
     if not result:
         print(f"Username \"{username}\" or Email \"{email}\" is already in use")
         return None
-
     print("Successfully created account")
     return result
 
