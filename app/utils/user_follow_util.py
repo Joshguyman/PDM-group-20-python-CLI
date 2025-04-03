@@ -1,60 +1,20 @@
+"""
+user_following_util.py
+
+Extra utility functions to help perform
+user following functionality
+"""
+
 import psycopg
 
 
-def follow_user(conn, follower_id, followee_id):
-    """user follows another user"""
-    if not conn:
-        raise psycopg.OperationalError("Database connection is not established")
-    curs = conn.cursor()
-
-    # if user tries to follow itself, should return false
-    if follower_id == followee_id:
-        print("Cannot follow yourself.")
-        return False
-
-    try:
-        curs.execute(
-            "INSERT INTO user_follows_user (follower, followee) VALUES (%s, %s);",
-            (follower_id, followee_id)
-        )
-        conn.commit()
-        return True
-    except psycopg.Error as e:
-        print(f"Database error: {e}")
-        curs.close()
-        return False
-
-
-def unfollow_user(conn, follower_id, followee_id):
-    """user unfollows another user"""
-    if not conn:
-        raise psycopg.OperationalError("Database connection is not established")
-
-    try:
-        curs = conn.cursor()
-        # Check if the relationship exists first
-        curs.execute(
-            "SELECT 1 FROM user_follows_user WHERE follower = %s AND followee = %s",
-            (follower_id, followee_id)
-        )
-        if not curs.fetchone():
-            print("You do not follow this person")
-            return False
-
-        curs.execute(
-            "DELETE FROM user_follows_user WHERE follower = %s AND followee = %s",
-            (follower_id, followee_id)
-        )
-        conn.commit()
-        return True
-
-    except psycopg.Error as e:
-        print(f"Database error: {e}")
-        return False
-
-
 def get_following_list(conn, follower_id):
-    """Get list of following UID"""
+    """
+    Get a user's following list
+    :param conn: Data base connection
+    :param follower_id: User's ID
+    :return: List of user's followers, empty if 0, None if error.
+    """
     if not conn:
         raise psycopg.OperationalError("Database connection is not established")
     curs = conn.cursor()
@@ -75,7 +35,12 @@ def get_following_list(conn, follower_id):
 
 
 def get_follower_list(conn, followee_id):
-    """Get list of follower UIDs"""
+    """
+    Get a user's follower list
+    :param conn: Data base connection
+    :param followee_id: User's ID
+    :return: List of user's followers, empty if 0, None if error.
+    """
     if not conn:
         raise psycopg.OperationalError("Database connection is not established")
     curs = conn.cursor()

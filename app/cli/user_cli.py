@@ -1,6 +1,7 @@
 # Imports
 from app.services.user_services import *
 from app.models.videogame_model import *
+from app.utils.user_follow_util import *
 import getpass
 from datetime import datetime
 # Session variables
@@ -34,6 +35,8 @@ def help_message():
           "\tFollow User (UF)\n"
           "\tUnfollow User (UUF)\n"
           "\tTop 10 Video Games by various ways (T10)\n"
+          "\tView number of Users followed (NFD)\n"
+          "\tView number of followers (NFS)\n"
           "Quit program (Q)"
     )
 
@@ -141,6 +144,24 @@ def command_handler(conn):
         case "uuf":
             unfollowed_user = input("Who do you want to unfollow?: ")
             unfollow_user(conn, session_uid, unfollowed_user)
+        case "nfd":
+            following_list = get_following_list(conn, session_uid)
+            if following_list is not None:
+                following_num = len(following_list)
+                if following_num == 1:
+                    user_word = 'user'
+                else:
+                    user_word = 'users'
+                print("You are currently following", following_num, user_word)
+        case "nfs":
+            follower_list = get_follower_list(conn, session_uid)
+            if follower_list is not None:
+                follower_num = len(follower_list)
+                if follower_num == 1:
+                    follower_word = 'follower'
+                else:
+                    follower_word = 'followers'
+                print("You currently have", follower_num, follower_word)
         case "r":
             vid = search_videogame_title(conn, input("Enter the game you wish to rate: "))[0]
             create_rating(conn, session_uid, vid, input("Enter your score: "))
