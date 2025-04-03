@@ -442,16 +442,104 @@ def modify_collection_name(conn, uid, colid, name):
     change_collection_name(conn, uid, colid, name)
     print(f"Successfully renamed \"{oldname}\" Collection to \"{name}\" Collection")
 
+
 def user_collection_count(conn, uid):
     if not get_user_by_id(conn, uid):
         print("User does not exist")
         return
     count = get_number_collections(conn, uid)
     return count
+  
+def get_top_10_videogames(conn, criterion='R', uid=None):
+    """Retrieve and display the top 10 video games based on the chosen criterion"""
+    if not conn:
+        raise psycopg.OperationalError("Database connection is not established")
+    
+    if not uid:
+        raise ValueError("UID must be provided for the logged-in user.")
+    
+    criterion = criterion.upper()  # Normalize input to uppercase
+    
+    criteria = {'R', 'P', 'B'}
+    if criterion not in criteria:
+        raise ValueError(f"Invalid criterion. Choose from {criteria}")
+    
+    query = ""
+    
+    if criterion == 'R':
+        query = """
+            SELECT v.vid, v.title, urv.score
+            FROM videogame v
+            JOIN user_rates_videogame urv ON v.vid = urv.vid
+            WHERE urv.uid = %s
+            ORDER BY urv.score DESC
+            LIMIT 10;
+        """
+    
+    elif criterion == 'P':
+        query = """
+            SELECT v.vid, v.title, 
+                COALESCE(SUM(
+                    (CAST(SPLIT_PART(upv.durationplayed, ':', 1) AS INT) * 60) +
+                    CAST(SPLIT_PART(upv.durationplayed, ':', 2) AS INT)
+                ), 0) AS total_playtime
+            FROM videogame v
+            JOIN user_plays_videogame upv ON v.vid = upv.vid
+            WHERE upv.uid = %s
+            GROUP BY v.vid, v.title
+            ORDER BY total_playtime DESC
+            LIMIT 10;
+        """
+    
+    elif criterion == 'B':
+        query = """
+            SELECT v.vid, v.title, 
+                   urv.score, 
+                   COALESCE(SUM(
+                        (CAST(SPLIT_PART(upv.durationplayed, ':', 1) AS INT) * 60) +
+                        CAST(SPLIT_PART(upv.durationplayed, ':', 2) AS INT)
+                   ), 0) AS total_playtime,
+                   (urv.score * 0.7 + COALESCE(SUM(
+                        (CAST(SPLIT_PART(upv.durationplayed, ':', 1) AS INT) * 60) +
+                        CAST(SPLIT_PART(upv.durationplayed, ':', 2) AS INT)
+                   ), 0) * 0.3) AS combined_score
+            FROM videogame v
+            JOIN user_rates_videogame urv ON v.vid = urv.vid
+            LEFT JOIN user_plays_videogame upv ON v.vid = upv.vid AND upv.uid = urv.uid
+            WHERE urv.uid = %s
+            GROUP BY v.vid, v.title, urv.score
+            ORDER BY combined_score DESC
+            LIMIT 10;
+        """
+    with conn.cursor() as curs:
+        try:
+            curs.execute(query, (uid,))  # Always filter by UID
+
+            result = curs.fetchall()
+
+            # Display results
+            if result:
+                if criterion == 'R':
+                    print(f"\nTop 10 Video Games by RATING for UID = {uid}:")
+                    for idx, game in enumerate(result, start=1):
+                        print(f"{idx}. [RATING: {game[2]}] --- VID: {game[0]} --- {game[1]}")
+                elif criterion == 'P':
+                    print(f"\nTop 10 Video Games by PLAYTIME for UID = {uid}:")
+                    for idx, game in enumerate(result, start=1):
+                        print(f"{idx}. [PLAYTIME: {game[2]} minutes] --- VID: {game[0]} --- {game[1]}")
+                elif criterion == 'B':
+                    print(f"\nTop 10 Video Games by COMBINED SCORE (Rating + Playtime) for UID = {uid}:")
+                    for idx, game in enumerate(result, start=1):
+                        print(f"{idx}. [COMBINED SCORE: {game[4]:.2f}] --- VID: {game[0]} --- {game[1]}")
+            else:
+                print(f"No data found for UID = {uid} and selected criterion.")
+
+        except psycopg.Error as e:
+            print(f"Database error: {e}")
+            return []
 
 def sort_top(games, size):
     return sorted(games.items(), key=lambda x: x[1], reverse=True)[:size]
-
 def top_games_followers(conn, uid, size):
     top20 = {}
     followers = get_user_followers(conn, uid)
