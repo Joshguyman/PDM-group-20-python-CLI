@@ -608,3 +608,35 @@ def get_videogame_platforms(conn, vid):
         return None
     finally:
         curs.close()
+
+def get_top_20_popular_games(conn): 
+    """Retrieve and display the top 20 most popular video games in the last 90 days"""
+    if not conn:
+        raise psycopg.OperationalError("Database connection is not established")
+
+    query = """
+        SELECT v.vid, v.title, COUNT(DISTINCT upv.uid) AS active_users
+        FROM videogame v
+        JOIN user_plays_videogame upv ON v.vid = upv.vid
+        WHERE upv.timestarted >= CURRENT_DATE - INTERVAL '90 days'
+        GROUP BY v.vid, v.title
+        ORDER BY active_users DESC
+        LIMIT 20;
+    """
+
+    with conn.cursor() as curs:
+        try:
+            curs.execute(query)
+            result = curs.fetchall()
+
+            # Display results
+            if result:
+                print("\nTop 20 Most Popular Video Games (Last 90 Days):")
+                for idx, game in enumerate(result, start=1):
+                    print(f"{idx}. [PLAYERS: {game[2]}] --- VID: {game[0]} --- {game[1]}")
+            else:
+                print("No data found for the last 90 days.")
+
+        except psycopg.Error as e:
+            print(f"Database error: {e}")
+            return []
