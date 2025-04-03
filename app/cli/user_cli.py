@@ -27,12 +27,14 @@ def help_message():
           "\tSearch for Game by various ways (SG)\n"
           "\tPlay a specific Game (PG)\n"
           "\tPlay a random Game from a Collection (PRG)\n"
-          "\tStop playing a running Game(PS)\n"
+          "\tStop playing a running Game (PS)\n"
           "\tRate a Game (R)\n"
+          "\tTop 20 Video Games in the last 90 days\n (T20)"
           "Users:\n"
           "\tSearch for User (SU)\n"
           "\tFollow User (UF)\n"
           "\tUnfollow User (UUF)\n"
+          "\tTop 10 Video Games by various ways (T10)\n"
           "\tView number of Users followed (NFD)\n"
           "\tView number of followers (NFS)\n"
           "Quit program (Q)"
@@ -45,6 +47,7 @@ def command_handler(conn):
     match user_input:
         case "h":
             help_message()
+        # COLLECTIONS 
         case "cr":
             name = input("Enter the collection you wish to modify: ")
             clist = get_collection_by_name(conn, session_uid, name)
@@ -82,6 +85,7 @@ def command_handler(conn):
                 index = int(same_collection_name(conn, clist)) - 1
             remove_games_from_collection(conn, clist[index][1], session_uid, removed_games_list)
 
+        # VIDEO GAMES 
         case "sg":
             is_type_valid = False
             valid_types = ["title", "platform", "release date", "developer", "publisher", "genre", "price"]
@@ -127,6 +131,7 @@ def command_handler(conn):
             stop_playing_videogame(conn, session_uid, name, vid, session_time)
         case "q":
             session_live = False
+        # USER 
         case "su":
             chosen_type = 1
             type_input = input("Search for user by username or email?(U/E): ").lower()
@@ -160,6 +165,10 @@ def command_handler(conn):
         case "r":
             vid = search_videogame_title(conn, input("Enter the game you wish to rate: "))[0]
             create_rating(conn, session_uid, vid, input("Enter your score: "))
+        case "t10":
+            criteria = input("View top 10 video games by rating, playtime, or both (R/P/B): ").upper()
+            get_top_10_videogames(conn, criteria, uid=session_uid)            
+        # DELETE COLLECTION 
         case "crc":
             name = input("Enter the collection you wish to delete: ")
             clist = get_collection_by_name(conn, session_uid, name)

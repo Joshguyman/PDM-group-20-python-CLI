@@ -608,4 +608,3 @@ def get_videogame_platforms(conn, vid):
         return None
     finally:
         curs.close()
-
