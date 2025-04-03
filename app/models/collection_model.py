@@ -276,5 +276,20 @@ def get_collection_by_name(conn, uid, name):
         curs.close()
         return
 
+def get_number_collections(conn, uid):
+    if not conn:
+        raise psycopg.OperationalError("Database connection is not established")
+    curs = conn.cursor()
+    try:
+        curs.execute(
+            "SELECT COUNT(colid) FROM collection WHERE uid = %s", (uid,)
+        )
+        num = curs.fetchone()[0]
+        curs.close()
+        return num
+
+    except Exception:
+        curs.close()
+        return None
 
 

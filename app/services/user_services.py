@@ -442,6 +442,14 @@ def modify_collection_name(conn, uid, colid, name):
     change_collection_name(conn, uid, colid, name)
     print(f"Successfully renamed \"{oldname}\" Collection to \"{name}\" Collection")
 
+
+def user_collection_count(conn, uid):
+    if not get_user_by_id(conn, uid):
+        print("User does not exist")
+        return
+    count = get_number_collections(conn, uid)
+    return count
+  
 def get_top_10_videogames(conn, criterion='R', uid=None):
     """Retrieve and display the top 10 video games based on the chosen criterion"""
     if not conn:
