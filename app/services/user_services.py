@@ -449,6 +449,27 @@ def user_collection_count(conn, uid):
     count = get_number_collections(conn, uid)
     return count
 
+def sort_top(games, size):
+    return sorted(games.items(), key=lambda x: x[1], reverse=True)[:size]
+
+def top_games_followers(conn, uid, size):
+    top20 = {}
+    followers = get_user_followers(conn, uid)
+    for follower in followers:
+        games = get_user_videogame_plays(conn, follower)
+        if not games:
+            continue
+        for game in games:
+            game_name = get_videogame_by_id(conn, game)[0]
+            if game_name in top20:
+                top20[game_name] += 1
+            else:
+                top20[game_name] = 1
+    if not top20:
+        print("Your followers don't own any games :(")
+        return
+    return sort_top(top20, size)
+
 
 """
 wrapper functions ¯\_(ツ)_/¯

@@ -36,6 +36,7 @@ def help_message():
           "\tView number of Users followed (NFD)\n"
           "\tView number of followers (NFS)\n"
           "\tView number of Collections a User has (VNC)\n"
+          "\tView the top 20 Games your Followers love! (VTT)\n"
           "Quit program (Q)"
     )
 
@@ -173,6 +174,17 @@ def command_handler(conn):
             uid = get_user_by_username(conn, name)[0]
             count = user_collection_count(conn, uid)
             print(name, "has", count, "collections.")
+        case "vtt":
+            if not get_user_followers(conn, session_uid):
+                print("You're not following anyone :(")
+                return
+            top20 = top_games_followers(conn, session_uid, 20)
+            if not top20:
+                return
+            print("The top 20 games are...")
+            for game in top20:
+                print(f"\t{game[0]}: {game[1]}")
+
         case _:
             print("Please enter a valid command, input H for help.")
             

@@ -211,3 +211,34 @@ def get_user_platforms(conn, uid):
     except Exception:
         curs.close()
         return None
+
+def get_user_followers(conn, uid):
+    if not conn:
+        raise psycopg.OperationalError("Database connection is not established")
+    curs = conn.cursor()
+    try:
+        curs.execute(
+            "SELECT followee FROM user_follows_user WHERE follower = %s", (uid,))
+        result = curs.fetchall()
+        followees = [row[0] for row in result]
+        curs.close()
+        return followees
+    except Exception:
+        curs.close()
+        return None
+
+def get_user_videogame_plays(conn, uid):
+    if not conn:
+        raise psycopg.OperationalError("Database connection is not established")
+    curs = conn.cursor()
+    try:
+        curs.execute(
+            "SELECT vid FROM user_plays_videogame WHERE uid = %s", (uid,))
+        result = curs.fetchall()
+        games = [row[0] for row in result]
+        curs.close()
+        return games
+    except Exception:
+        curs.close()
+        return None
+
