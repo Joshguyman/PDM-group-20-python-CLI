@@ -49,15 +49,15 @@ def main():
     
     # Establish connections
     try:
-        print("Attempting to create SSH tunnel...")
+        #print("Attempting to create SSH tunnel...")
         with SSHTunnelForwarder(('starbug.cs.rit.edu', 22),
                                 ssh_username=username,
                                 ssh_password=password,
                                 remote_bind_address=('127.0.0.1', 5432)) as server:
-            print("SSH Tunnel Established")
+            #print("SSH Tunnel Established")
             server.start()
 
-            print(f"Local bind port: {server.local_bind_port}")
+            #print(f"Local bind port: {server.local_bind_port}")
             conn = connect(username=username, password=password, server=server)
 
             # use this for testing currently
