@@ -182,9 +182,9 @@ def command_handler(conn):
             get_top_n_videogames(conn, criteria, uid=session_uid, n=n)
         case "tm":
             if input("Would you like to view games for a specific(S) or current(C) month?")[0].lower() == "s":
-                res = input("Enter the month and year you wish to view (MMM, YYYY): ")
+                res = input("Enter the month and year you wish to view (<month>, YYYY): ")
                 while not re.match(r'^[A-Z][a-z]{2}, \d{4}$', res):
-                    res = input("Incorrect format, Enter MMM, YYYY: ")
+                    res = input("Incorrect format, Enter <month>, YYYY: ")
                 get_top_5_games_of_the_month(conn, res)
             else:
                 get_top_5_games_of_the_month(conn, None)
@@ -211,7 +211,7 @@ def command_handler(conn):
             count = user_collection_count(conn, uid)
             print(name, "has", count, "collections.")
         case "vtt":
-            if not get_user_followers(conn, session_uid):
+            if not get_follower_list(conn, session_uid):
                 print("You're not following anyone :(")
                 return
             top20 = top_games_followers(conn, session_uid, 20)
@@ -219,7 +219,7 @@ def command_handler(conn):
                 return
             print("The top 20 games are...")
             for game in top20:
-                print(f"\t{game[0]}: {game[1]}")
+                print(f"\t{game[1]} of your followers played {game[0]}")
 
         case _:
             print("Please enter a valid command, input H for help.")

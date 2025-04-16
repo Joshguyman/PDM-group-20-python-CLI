@@ -5,6 +5,7 @@ from app.utils.format import format_videogame_result, format_collection_result, 
 from app.utils.hashing_util import *
 from datetime import datetime
 from app.models.collection_model import *
+from app.utils.user_follow_util import *
 import random
 
 from app.utils.rating import rate_videogame
@@ -558,7 +559,7 @@ def sort_top(games, size):
   
 def top_games_followers(conn, uid, size):
     top20 = {}
-    followers = get_user_followers(conn, uid)
+    followers = get_follower_list(conn, uid)
     for follower in followers:
         games = get_user_videogame_plays(conn, follower)
         if not games:
