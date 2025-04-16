@@ -1,7 +1,8 @@
 from app.models.collection_model import *
 from app.models.user_model import *
 from app.models.videogame_model import *
-from app.utils.format import format_videogame_result, format_collection_result
+from app.utils.format import format_videogame_result, format_collection_result, format_videogame_date_results
+from app.utils.hashing_util import *
 from datetime import datetime
 from app.models.collection_model import *
 import random
@@ -15,7 +16,7 @@ def sign_in(conn, username, password):
         print("User not found")
         return None
     tmp = get_user_password(conn, result[0])[0]
-    if password != tmp:
+    if not (verify_password(password, tmp)) :
         print(f"No User with password \"{password}\"")
         return None
     print("Signed in as:", result[1])
@@ -35,11 +36,11 @@ create_account: create an account for a user
 
 
 def create_account(conn, username, password, first_name, last_name, email):
-    result = create_user(conn, username, password, first_name, last_name, email)
+    hashed_password = hash_password(password)
+    result = create_user(conn, username, hashed_password, first_name, last_name, email)
     if not result:
         print(f"Username \"{username}\" or Email \"{email}\" is already in use")
         return None
-
     print("Successfully created account")
     return result
 
@@ -144,12 +145,15 @@ def search_videogame(conn, val, searchtype, sorttype, desc: bool):
     sot = 0
 
     match sorttype:
+        case "rating":
+            sot = 9
         case "price":
             sot = 8
         case "genre":
             sot = 6
         case "release-date":
             sot = 7
+
         case _:
             sot = 0
     match searchtype:
@@ -450,7 +454,7 @@ def user_collection_count(conn, uid):
     count = get_number_collections(conn, uid)
     return count
   
-def get_top_10_videogames(conn, criterion='R', uid=None):
+def get_top_n_videogames(conn, criterion='R', uid=None, n:int=10):
     """Retrieve and display the top 10 video games based on the chosen criterion"""
     if not conn:
         raise psycopg.OperationalError("Database connection is not established")
@@ -473,7 +477,7 @@ def get_top_10_videogames(conn, criterion='R', uid=None):
             JOIN user_rates_videogame urv ON v.vid = urv.vid
             WHERE urv.uid = %s
             ORDER BY urv.score DESC
-            LIMIT 10;
+            LIMIT %s;
         """
     
     elif criterion == 'P':
@@ -488,7 +492,7 @@ def get_top_10_videogames(conn, criterion='R', uid=None):
             WHERE upv.uid = %s
             GROUP BY v.vid, v.title
             ORDER BY total_playtime DESC
-            LIMIT 10;
+            LIMIT %s;
         """
     
     elif criterion == 'B':
@@ -509,28 +513,39 @@ def get_top_10_videogames(conn, criterion='R', uid=None):
             WHERE urv.uid = %s
             GROUP BY v.vid, v.title, urv.score
             ORDER BY combined_score DESC
-            LIMIT 10;
+            LIMIT %s;
         """
     with conn.cursor() as curs:
         try:
-            curs.execute(query, (uid,))  # Always filter by UID
+            curs.execute(query, (uid, n))  # Always filter by UID
 
             result = curs.fetchall()
 
             # Display results
             if result:
+                i = 0
                 if criterion == 'R':
-                    print(f"\nTop 10 Video Games by RATING for UID = {uid}:")
+                    print(f"\nTop {n} Video Games by RATING for UID = {uid}:")
                     for idx, game in enumerate(result, start=1):
+                        i = idx
                         print(f"{idx}. [RATING: {game[2]}] --- VID: {game[0]} --- {game[1]}")
+                    if i < n:
+                        for idx in range(i, n + 1):
+                            print(f"{idx}. ----------------------------------")
                 elif criterion == 'P':
-                    print(f"\nTop 10 Video Games by PLAYTIME for UID = {uid}:")
+                    print(f"\nTop {n} Video Games by PLAYTIME for UID = {uid}:")
                     for idx, game in enumerate(result, start=1):
                         print(f"{idx}. [PLAYTIME: {game[2]} minutes] --- VID: {game[0]} --- {game[1]}")
+                    if i < n:
+                        for idx in range(i, n + 1):
+                            print(f"{idx}. ----------------------------------")
                 elif criterion == 'B':
-                    print(f"\nTop 10 Video Games by COMBINED SCORE (Rating + Playtime) for UID = {uid}:")
+                    print(f"\nTop {n} Video Games by COMBINED SCORE (Rating + Playtime) for UID = {uid}:")
                     for idx, game in enumerate(result, start=1):
                         print(f"{idx}. [COMBINED SCORE: {game[4]:.2f}] --- VID: {game[0]} --- {game[1]}")
+                    if i < n:
+                        for idx in range(i, n + 1):
+                            print(f"{idx}. ----------------------------------")
             else:
                 print(f"No data found for UID = {uid} and selected criterion.")
 
@@ -540,6 +555,7 @@ def get_top_10_videogames(conn, criterion='R', uid=None):
 
 def sort_top(games, size):
     return sorted(games.items(), key=lambda x: x[1], reverse=True)[:size]
+  
 def top_games_followers(conn, uid, size):
     top20 = {}
     followers = get_user_followers(conn, uid)
@@ -557,6 +573,64 @@ def top_games_followers(conn, uid, size):
         print("Your followers don't own any games :(")
         return
     return sort_top(top20, size)
+
+
+def get_top_5_games_of_the_month(conn, month):
+    if not conn:
+        raise psycopg.OperationalError("Database connection is not established")
+
+    date = datetime.now().strftime("%B")[:3] + " " + datetime.now().strftime("%Y")
+    if month:
+        date = month
+    result, curs = get_top_5_games_by_date(conn, date)
+    format_videogame_date_results(result, date)
+"""
+recommend games to a user based on some value
+type: the type of recommendation (by genre, developer, platform, rating, similar users)
+num: number of recommendations
+"""
+def recommend_games(conn, uid, type, num):
+    if not conn:
+        raise psycopg.OperationalError("Database connection is not established")
+    vids = []
+    rec = type
+    match type:
+        case "G":
+            rec = 'Genre'
+            vids = get_similar_games_by_genre(conn, uid, num)
+        case "D":
+            rec = 'Developer'
+            vids = get_similar_games_by_dev(conn, uid, num)
+        case "P":
+            rec = 'Platform'
+            vids = get_similar_games_by_plat(conn, uid, num)
+        case "R":
+            rec = 'Rating'
+            vids = get_similar_games_by_rat(conn, uid, num)
+        case "S":
+            rec = "Similar users"
+            vids = get_similar_user_recs(conn, uid, num)
+        case _:
+            print(f"No recommendations of type \"{rec}\"")
+            return
+    if not vids:
+        print("No similar games found based on your play history.")
+        return
+    if len(vids) < num:
+        print(f"Only able to recommend {len(vids)} games by {rec} based on your play history:")
+    print(f"Top {num} recommended games by {rec}, based on your play history:")
+    for vid in vids:
+        game = get_videogame_by_id_short(conn, vid[0])
+        print("=" * 80)
+        print(f"Title: {game[0]}")
+        print(f"Platforms: {game[1]}")
+        print(f"Publishers: {game[2]}")
+        print(f"Developers: {game[3]}")
+        print(f"Genres: {game[4]}")
+        print(f"ESRB Rating: {game[5]}")
+        print(f"Average Score: {round(int(game[6]))}")
+        print("=" * 80)
+
 
 
 """

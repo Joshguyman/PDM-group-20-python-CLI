@@ -1,4 +1,6 @@
 # Imports
+import re
+
 from app.services.user_services import *
 from app.models.videogame_model import *
 from app.utils.user_follow_util import *
@@ -30,11 +32,13 @@ def help_message():
           "\tStop playing a running Game (PS)\n"
           "\tRate a Game (R)\n"
           "\tTop 20 Video Games in the last 90 days (T20)\n"
+          "\tTop N Video Games by various ways (T <N>)\n"
+          "\tTop 5 rated releases of the Month (TM)\n"
+          "\tRecommend N games by various ways (RG)\n"
           "Users:\n"
           "\tSearch for User (SU)\n"
           "\tFollow User (UF)\n"
           "\tUnfollow User (UUF)\n"
-          "\tTop 10 Video Games by various ways (T10)\n"
           "\tView number of Users followed (NFD)\n"
           "\tView number of followers (NFS)\n"
           "\tView number of Collections a User has (VNC)\n"
@@ -45,8 +49,8 @@ def help_message():
 def command_handler(conn):
     global session_live
     global session_time
-    user_input = input("Enter your command: ").lower()
-    match user_input:
+    user_input = input("Enter your command: ").lower().split(" ")
+    match user_input[0]:
         case "h":
             help_message()
         # COLLECTIONS 
@@ -169,9 +173,30 @@ def command_handler(conn):
         case "r":
             vid = search_videogame_title(conn, input("Enter the game you wish to rate: "))[0]
             create_rating(conn, session_uid, vid, input("Enter your score: "))
-        case "t10":
-            criteria = input("View top 10 video games by rating, playtime, or both (R/P/B): ").upper()
-            get_top_10_videogames(conn, criteria, uid=session_uid)            
+        case "t":
+            if len(user_input) > 1:
+                n = int(user_input[1])
+            else:
+                n = 10 #defualt val
+            criteria = input(f"View top {n} video games by rating, playtime, or both (R/P/B): ").upper()
+            get_top_n_videogames(conn, criteria, uid=session_uid, n=n)
+        case "tm":
+            if input("Would you like to view games for a specific(S) or current(C) month?")[0].lower() == "s":
+                res = input("Enter the month and year you wish to view (MMM, YYYY): ")
+                while not re.match(r'^[A-Z][a-z]{2}, \d{4}$', res):
+                    res = input("Incorrect format, Enter MMM, YYYY: ")
+                get_top_5_games_of_the_month(conn, res)
+            else:
+                get_top_5_games_of_the_month(conn, None)
+        case "rg":
+            res = input("Would you like recommendations based on (G)enre, (D)eveloper, (P)latform, (R)ating, or (S)imilar users?")
+            while res[0].upper() != "G" and res[0].upper() != "D" and res[0].upper() != "P" and res[0].upper() != "R" and res[0].upper() != "S":
+                res = input("Invalid criteria, Enter G/D/P/R/S: ")
+            num = input("Enter the number of recommendations you want: ")
+            while not num.isdigit():
+                num = input("Please enter a number: ")
+            num = int(num)
+            recommend_games(conn, session_uid, res, num)
         # DELETE COLLECTION 
         case "crc":
             name = input("Enter the collection you wish to delete: ")

@@ -15,6 +15,7 @@ def format_videogame_result(result, search, searchtype, sorttype, desc:bool):
     result.sort(key=lambda x: x[sorttype], reverse=desc)
     for row in result:
         title, platforms, publishers, developers, playtimes, ratings, genres, esrbrating, _ = row
+
         ratings = ratings.replace(" ", "").split(",")
         ones = ratings.count("1")
         twos = ratings.count("2")
@@ -32,6 +33,28 @@ def format_videogame_result(result, search, searchtype, sorttype, desc:bool):
         print(f"ESRB Rating: {esrbrating if esrbrating else 'N/A'}")
         print("=" * 80)
     return
+
+def format_videogame_date_results(results, date):
+    """
+    Nicely prints the results of the videogame query.
+
+    :param results: A list of tuples representing the query results.
+    """
+    if not results:
+        print("No results found for this month.")
+        return
+    print(f"Top 5 games for \"{date}\":")
+    # Print each row in the desired format
+    for row in results:
+        print("=" * 80)
+        print(f"Title: {row[0]}")
+        print(f"Platforms: {row[1]}")
+        print(f"Publishers: {row[2]}")
+        print(f"Developers: {row[3]}")
+        print(f"Genres: {row[4]}")
+        print(f"ESRB Rating: {row[5]}")
+        print(f"Average Score: {round(int(row[6]))}")
+        print("=" * 80)
 
 def format_collection_result(result):
     for row in result:
