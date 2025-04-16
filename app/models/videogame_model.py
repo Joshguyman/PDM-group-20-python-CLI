@@ -71,7 +71,6 @@ WHERE v.vid = %s
 GROUP BY v.title, v.esrbrating, pcv.price
 ORDER BY v.title""", (vid,)
         )
-        print("executed statement")
         user = curs.fetchone()
         curs.close()
         return user

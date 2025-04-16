@@ -515,7 +515,6 @@ def get_top_n_videogames(conn, criterion='R', uid=None, n:int=10):
             ORDER BY combined_score DESC
             LIMIT %s;
         """
-
     with conn.cursor() as curs:
         try:
             curs.execute(query, (uid, n))  # Always filter by UID
@@ -553,6 +552,28 @@ def get_top_n_videogames(conn, criterion='R', uid=None, n:int=10):
         except psycopg.Error as e:
             print(f"Database error: {e}")
             return []
+
+def sort_top(games, size):
+    return sorted(games.items(), key=lambda x: x[1], reverse=True)[:size]
+  
+def top_games_followers(conn, uid, size):
+    top20 = {}
+    followers = get_user_followers(conn, uid)
+    for follower in followers:
+        games = get_user_videogame_plays(conn, follower)
+        if not games:
+            continue
+        for game in games:
+            game_name = get_videogame_by_id(conn, game)[0]
+            if game_name in top20:
+                top20[game_name] += 1
+            else:
+                top20[game_name] = 1
+    if not top20:
+        print("Your followers don't own any games :(")
+        return
+    return sort_top(top20, size)
+
 
 def get_top_5_games_of_the_month(conn, month):
     if not conn:
@@ -609,7 +630,6 @@ def recommend_games(conn, uid, type, num):
         print(f"ESRB Rating: {game[5]}")
         print(f"Average Score: {round(int(game[6]))}")
         print("=" * 80)
-
 
 
 
